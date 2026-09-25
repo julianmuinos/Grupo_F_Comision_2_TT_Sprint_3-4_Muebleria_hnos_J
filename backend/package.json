@@ -1,0 +1,14 @@
+{
+  "name": "muebleria-hermanos-jota-backend",
+  "version": "1.0.0",
+  "description": "Backend API REST para Mueblería Hermanos Jota - Sprint 3 y 4",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
