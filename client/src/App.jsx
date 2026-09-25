@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import CartModal from './components/CartModal';
 import './App.css';
 
 // URL de la API del Backend (Express)
@@ -12,7 +14,29 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 3. Conexión asíncrona al backend usando fetch con manejo de carga, éxito y error
+  // 3. Estado global del Carrito de Compras en App.jsx con persistencia en localStorage
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hnosj_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Estado para visibilidad del modal del carrito
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Persistir en localStorage ante cualquier modificación del carrito
+  useEffect(() => {
+    try {
+      localStorage.setItem('hnosj_cart', JSON.stringify(cart));
+    } catch (e) {
+      console.error('Error al guardar el carrito:', e);
+    }
+  }, [cart]);
+
+  // 4. Conexión asíncrona al backend usando fetch
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
@@ -26,7 +50,6 @@ function App() {
 
       const json = await response.json();
 
-      // Formato esperado: { status: 'success', data: [...] }
       if (json && Array.isArray(json.data)) {
         setProducts(json.data);
       } else if (Array.isArray(json)) {
@@ -45,28 +68,61 @@ function App() {
     }
   };
 
-  // Cargar productos al montar el componente (useEffect)
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // 5. Cálculo de cantidad total de artículos para pasar al Navbar vía props
+  const cartCount = cart.reduce((total, item) => total + item.cantidad, 0);
+
+  // 6. Funciones inmutables para manipulación del estado del carrito
+  const handleAddToCart = (product, quantityToAdd = 1) => {
+    setCart((prevCart) => {
+      const existingIndex = prevCart.findIndex((item) => item.id === product.id);
+
+      if (existingIndex > -1) {
+        const updated = [...prevCart];
+        const currentItem = updated[existingIndex];
+        const newQty = Math.min(product.stock || 99, currentItem.cantidad + quantityToAdd);
+        updated[existingIndex] = { ...currentItem, cantidad: newQty };
+        return updated;
+      } else {
+        return [...prevCart, { ...product, cantidad: Math.min(product.stock || 99, quantityToAdd) }];
+      }
+    });
+  };
+
+  const handleUpdateQuantity = (productId, delta) => {
+    setCart((prevCart) => {
+      return prevCart
+        .map((item) => {
+          if (item.id === productId) {
+            const nuevaCantidad = item.cantidad + delta;
+            return nuevaCantidad > 0 ? { ...item, cantidad: Math.min(item.stock || 99, nuevaCantidad) } : null;
+          }
+          return item;
+        })
+        .filter(Boolean);
+    });
+  };
+
+  const handleRemoveFromCart = (productId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+  };
+
+  const handleClearCart = () => {
+    setCart([]);
+  };
+
   return (
     <div className="app-container">
-      {/* Header básico de la aplicación */}
-      <header className="navbar-container">
-        <div className="navbar-content">
-          <div className="brand">
-            <img src="/assets/images/logo.svg" alt="Hermanos Jota" className="brand-logo-img" />
-            <div className="brand-text">
-              <span className="brand-name">HERMANOS JOTA</span>
-              <span className="brand-tagline">Buenos Aires · 2026</span>
-            </div>
-          </div>
-          <nav className="nav-links">
-            <span className="nav-button active">Catálogo</span>
-          </nav>
-        </div>
-      </header>
+      {/* Barra de Navegación con contador de carrito vía props */}
+      <Navbar
+        cartCount={cartCount}
+        currentView="catalogo"
+        onNavigate={() => {}}
+        onOpenCart={() => setIsCartOpen(true)}
+      />
 
       {/* Hero Banner */}
       <section className="hero-banner">
@@ -81,9 +137,8 @@ function App() {
         </div>
       </section>
 
-      {/* Contenido Principal: Ciclo de vida de la petición fetch */}
+      {/* Contenido Principal */}
       <main className="main-content">
-        {/* Estado 1: Cargando */}
         {loading && (
           <div className="state-container loading-container">
             <div className="spinner" />
@@ -92,7 +147,6 @@ function App() {
           </div>
         )}
 
-        {/* Estado 2: Error en la conexión */}
         {!loading && error && (
           <div className="state-container error-container">
             <div className="error-icon">⚠️</div>
@@ -104,14 +158,13 @@ function App() {
           </div>
         )}
 
-        {/* Estado 3: Éxito en la conexión y datos recibidos */}
         {!loading && !error && (
           <section className="catalog-section">
             <div className="catalog-header">
               <div>
                 <h2 className="section-title">Colección de Muebles</h2>
                 <p className="section-subtitle">
-                  {products.length} productos cargados dinámicamente desde el backend.
+                  {products.length} productos disponibles en catálogo.
                 </p>
               </div>
             </div>
@@ -131,6 +184,15 @@ function App() {
                         {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(item.precio)}
                       </span>
                     </div>
+                    <div className="product-card-actions">
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() => handleAddToCart(item, 1)}
+                      >
+                        + Cotizar 👜
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}
@@ -138,6 +200,16 @@ function App() {
           </section>
         )}
       </main>
+
+      {/* Modal / Drawer del Carrito */}
+      <CartModal
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cart={cart}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveFromCart}
+        onClearCart={handleClearCart}
+      />
     </div>
   );
 }
