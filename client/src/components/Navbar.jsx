@@ -14,17 +14,17 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
     <header className="navbar-container">
       <div className="navbar-content">
         {/* Logotipo Oficial Hermanos Jota */}
-        <div 
-          className="brand" 
-          onClick={() => onNavigate('inicio')} 
-          role="button" 
+        <div
+          className="brand"
+          onClick={() => onNavigate('inicio')}
+          role="button"
           tabIndex={0}
           title="Ir al inicio"
         >
-          <img 
-            src="/assets/images/logo.svg" 
-            alt="Logo Circular Hermanos Jota" 
-            className="brand-logo-img" 
+          <img
+            src="/assets/images/logo.svg"
+            alt="Logo Circular Hermanos Jota"
+            className="brand-logo-img"
           />
           <div className="brand-text">
             <span className="brand-name">HERMANOS JOTA</span>
