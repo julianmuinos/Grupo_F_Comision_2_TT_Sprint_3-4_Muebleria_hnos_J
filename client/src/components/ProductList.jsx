@@ -52,55 +52,93 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
 
   return (
     <section className="catalog-section" aria-labelledby="catalog-heading">
-      {/* Encabezado del Catálogo con Buscador y Contador */}
-      <div className="catalog-header">
-        <div>
-          <h2 id="catalog-heading" className="section-title">
-            Colección de Muebles
-          </h2>
-          <p className="section-subtitle">
-            Mostrando {filteredProducts.length} de {products.length} piezas de autor
+      {/* Encabezado Editorial del Catálogo con Buscador */}
+      <div className="catalog-heritage-header">
+        <div className="catalog-header-text">
+          <span className="catalog-pretitle">Catálogo Oficial · Hermanos Jota</span>
+          <h1 id="catalog-heading" className="catalog-main-title">
+            Nuestra Colección
+          </h1>
+          <p className="catalog-main-desc">
+            Piezas únicas, donde la honestidad del material y la precisión del diseño de los años 60 convergen.
           </p>
         </div>
 
-        {/* Buscador en tiempo real */}
-        <div className="search-box">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Buscar por nombre, material o categoría..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Buscar productos en el catálogo"
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              className="clear-search-btn"
-              onClick={() => setSearchTerm('')}
-              title="Limpiar búsqueda"
-              aria-label="Limpiar campo de búsqueda"
+        {/* Buscador en tiempo real con quick tags */}
+        <div className="catalog-search-wrapper">
+          <div className="search-box">
+            <svg
+              className="search-box-icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--outline)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
             >
-              ✕
-            </button>
-          )}
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Buscar por nombre, material o categoría..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Buscar productos en el catálogo"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="clear-search-btn"
+                onClick={() => setSearchTerm('')}
+                title="Limpiar búsqueda"
+                aria-label="Limpiar campo de búsqueda"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Quick Tags / Filtros Rápidos */}
+          <div className="quick-tags-container">
+            <span className="quick-tags-label">Filtros rápidos:</span>
+            {['Roble', 'Nogal', 'FSC®', 'Asientos'].map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className="quick-tag-chip"
+                onClick={() => setSearchTerm(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Filtros por Categoría */}
-      <div className="category-filters" role="tablist" aria-label="Filtro de categorías">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            role="tab"
-            aria-selected={selectedCategory === cat.id}
-            className={`category-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat.id)}
-          >
-            {cat.label}
-          </button>
-        ))}
+      {/* Barra de Filtros por Categoría y Contador */}
+      <div className="catalog-controls-bar">
+        <div className="category-filters" role="tablist" aria-label="Filtro de categorías">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              role="tab"
+              aria-selected={selectedCategory === cat.id}
+              className={`category-btn ${selectedCategory === cat.id ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat.id)}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+        <p className="catalog-items-counter">
+          Mostrando {filteredProducts.length} de {products.length} piezas de autor
+        </p>
       </div>
 
       {/* Grilla de Productos Renderizada con .map() y keys */}

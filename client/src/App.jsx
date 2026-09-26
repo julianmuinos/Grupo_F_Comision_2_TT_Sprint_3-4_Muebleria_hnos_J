@@ -3,6 +3,9 @@ import Navbar from './components/Navbar';
 import CartModal from './components/CartModal';
 import ProductList from './components/ProductList';
 import ProductDetail from './components/ProductDetail';
+import HomeView from './components/HomeView';
+import ContactView from './components/ContactView';
+import Footer from './components/Footer';
 import './App.css';
 
 // URL de la API del Backend (Express)
@@ -16,7 +19,10 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 3. Estado global del Carrito de Compras en App.jsx con persistencia en localStorage
+  // 3. Vista actual activa ('inicio' | 'catalogo' | 'contacto')
+  const [currentView, setCurrentView] = useState('inicio');
+
+  // 4. Estado global del Carrito de Compras en App.jsx con persistencia en localStorage
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('hnosj_cart');
@@ -156,37 +162,29 @@ function App() {
     setCart([]);
   };
 
+  const handleNavigate = (view) => {
+    setSelectedProduct(null);
+    setCurrentView(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectProduct = (product) => {
+    setSelectedProduct(product);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="app-container">
       {/* Barra de Navegación con contador de carrito vía props */}
       <Navbar
         cartCount={cartCount}
-        currentView={selectedProduct ? 'detalle' : 'catalogo'}
-        onNavigate={(view) => {
-          if (view === 'catalogo') {
-            setSelectedProduct(null);
-          }
-        }}
+        currentView={selectedProduct ? 'detalle' : currentView}
+        onNavigate={handleNavigate}
         onOpenCart={() => setIsCartOpen(true)}
       />
 
-      {/* Hero Banner (visible cuando se visualiza el catálogo) */}
-      {!selectedProduct && (
-        <section className="hero-banner">
-          <div className="hero-overlay">
-            <div className="hero-text-content">
-              <span className="hero-subtitle">Colección 2026 · Diseño de Autor</span>
-              <h1 className="hero-title">Muebles que alimentan el alma</h1>
-              <p className="hero-description">
-                Inspirados en la calidez de los años 60 y la nobleza de las maderas argentinas.
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Contenido Principal */}
-      <main className="main-content">
+      <main className={`main-content ${currentView === 'inicio' && !selectedProduct ? 'main-content-home' : ''}`}>
         {loading && (
           <div className="state-container loading-container">
             <div className="spinner" />
@@ -222,7 +220,7 @@ function App() {
           </div>
         )}
 
-        {/* Renderizado condicional: Detalle de Producto o Lista del Catálogo */}
+        {/* Renderizado condicional según la vista activa */}
         {!loading && !error && (
           selectedProduct ? (
             <ProductDetail
@@ -233,18 +231,26 @@ function App() {
               }}
               onAddToCart={handleAddToCart}
             />
+          ) : currentView === 'inicio' ? (
+            <HomeView
+              products={products}
+              onNavigate={handleNavigate}
+              onSelectProduct={handleSelectProduct}
+            />
+          ) : currentView === 'contacto' ? (
+            <ContactView />
           ) : (
             <ProductList
               products={products}
-              onSelectProduct={(product) => {
-                setSelectedProduct(product);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onSelectProduct={handleSelectProduct}
               onAddToCart={handleAddToCart}
             />
           )
         )}
       </main>
+
+      {/* Footer Oficial Hermanos Jota Heritage */}
+      <Footer onNavigate={handleNavigate} />
 
       {/* Modal / Drawer del Carrito */}
       <CartModal

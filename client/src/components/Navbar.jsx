@@ -16,7 +16,7 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
         {/* Logotipo Oficial Hermanos Jota */}
         <div 
           className="brand" 
-          onClick={() => onNavigate('catalogo')} 
+          onClick={() => onNavigate('inicio')} 
           role="button" 
           tabIndex={0}
           title="Ir al inicio"
@@ -34,6 +34,13 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
 
         {/* Enlaces de Navegación */}
         <nav className="nav-links">
+          <button
+            type="button"
+            className={`nav-button ${currentView === 'inicio' ? 'active' : ''}`}
+            onClick={() => onNavigate('inicio')}
+          >
+            Inicio
+          </button>
           <button
             type="button"
             className={`nav-button ${currentView === 'catalogo' || currentView === 'detalle' ? 'active' : ''}`}

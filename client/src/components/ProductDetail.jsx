@@ -156,9 +156,26 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
             <div>
               <span className="price-tagline">Precio de Lista Oficial</span>
               <div className="detail-price">{precioFormateado}</div>
+              <span className="detail-installments-badge">3 y 6 Cuotas Sin Interés</span>
             </div>
             <span className={`detail-stock-pill ${hayStock ? 'in-stock' : 'out-of-stock'}`}>
-              {hayStock ? `✓ En Stock (${product.stock} disponibles)` : '✕ Sin Stock Inmediato'}
+              {hayStock ? `En Stock (${product.stock} disponibles)` : 'Sin Stock Inmediato'}
+            </span>
+          </div>
+
+          {/* Chips de Sustentabilidad y Atributos de Autor */}
+          <div className="detail-sustainability-chips">
+            <span className="sustainability-chip">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22v-7"/><path d="M17 12V9c0-2.8-2.2-5-5-5S7 6.2 7 9v3"/><path d="M3 15c0 3.3 3.6 6 8.5 6s9.5-2.7 9.5-6-3.6-6-9-6-9 2.7-9 6Z"/></svg>
+              Madera Certificada FSC®
+            </span>
+            <span className="sustainability-chip">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              Acabado Aceites Naturales
+            </span>
+            <span className="sustainability-chip">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"/><path d="M15 13 9 7l4-4 6 6-4 4Z"/></svg>
+              Ensamble Artesanal
             </span>
           </div>
 
@@ -251,6 +268,29 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 ¡Se agregaron {quantity} unidad(es) de {nombre} a tu cotización!
               </div>
             )}
+
+            {/* Tarjeta de Confianza y Garantía */}
+            <div className="detail-trust-card">
+              <div className="trust-item">
+                <div className="trust-icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div>
+                  <h4 className="trust-title">Garantía Estructural Hermanos Jota</h4>
+                  <p className="trust-desc">Cubrimos cualquier defecto estructural de fabricación por 10 años.</p>
+                </div>
+              </div>
+              <div className="trust-divider" />
+              <div className="trust-item">
+                <div className="trust-icon-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-4h-5v10"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+                </div>
+                <div>
+                  <h4 className="trust-title">Envío Especializado y Cuidado</h4>
+                  <p className="trust-desc">Entregado con embalaje reforzado y manipulación artesanal en todo el país.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
