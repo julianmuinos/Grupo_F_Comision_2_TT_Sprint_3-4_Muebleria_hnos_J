@@ -22,6 +22,10 @@ app.get('/', (req, res) => {
   });
 });
 
+// Rutas de la API
+const productosRouter = require('./routes/productos.routes');
+app.use('/api/productos', productosRouter);
+
 // Middleware para manejo de rutas no encontradas (404)
 app.use(notFoundHandler);
 
