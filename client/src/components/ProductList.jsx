@@ -118,7 +118,22 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
       ) : (
         /* Estado vacío si no hay coincidencias */
         <div className="state-container">
-          <div className="error-icon">🔍</div>
+          <div className="error-icon">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--text-muted)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
           <h3>No se encontraron muebles</h3>
           <p className="section-subtitle">
             No encontramos ningún producto que coincida con &quot;{searchTerm}&quot; en la categoría seleccionada.

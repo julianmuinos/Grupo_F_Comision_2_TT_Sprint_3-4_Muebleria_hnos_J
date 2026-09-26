@@ -233,7 +233,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 disabled={!hayStock}
                 aria-label={`Agregar ${quantity} unidades de ${nombre} a la cotización`}
               >
-                + Agregar a Cotización 👜
+                + Agregar a Cotización
               </button>
               <button
                 type="button"
@@ -248,7 +248,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
             {/* Notificación Toast de Éxito */}
             {showToast && (
               <div className="success-toast" role="alert">
-                ✨ ¡Se agregaron {quantity} unidad(es) de {nombre} a tu cotización!
+                ¡Se agregaron {quantity} unidad(es) de {nombre} a tu cotización!
               </div>
             )}
           </div>

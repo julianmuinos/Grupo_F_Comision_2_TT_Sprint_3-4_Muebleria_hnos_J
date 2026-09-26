@@ -90,7 +90,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart }) => {
             onClick={() => onSelectProduct?.(product)}
             aria-label={`Ver detalles de ${nombre}`}
           >
-            Ver Detalle 👁️
+            Ver Detalle
           </button>
           <button
             type="button"
@@ -99,7 +99,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart }) => {
             disabled={!hayStock}
             aria-label={`Agregar ${nombre} a la cotización`}
           >
-            + Cotizar 👜
+            + Cotizar
           </button>
         </div>
       </div>
