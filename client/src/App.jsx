@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import CartModal from './components/CartModal';
+import ProductList from './components/ProductList';
 import './App.css';
 
 // URL de la API del Backend (Express)
@@ -27,6 +28,9 @@ function App() {
   // Estado para visibilidad del modal del carrito
   const [isCartOpen, setIsCartOpen] = useState(false);
 
+  // Estado para el producto seleccionado en el catálogo (para detalle condicional)
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   // Persistir en localStorage ante cualquier modificación del carrito
   useEffect(() => {
     try {
@@ -37,7 +41,7 @@ function App() {
   }, [cart]);
 
   // 4. Conexión asíncrona al backend usando fetch
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -66,10 +70,47 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
+    let ignore = false;
+
+    const loadData = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error(`Error en el servidor: Código HTTP ${response.status}`);
+        }
+        const json = await response.json();
+        if (!ignore) {
+          if (json && Array.isArray(json.data)) {
+            setProducts(json.data);
+          } else if (Array.isArray(json)) {
+            setProducts(json);
+          } else {
+            throw new Error('El formato de datos devuelto por la API no es válido.');
+          }
+        }
+      } catch (err) {
+        console.error('Error al obtener productos desde la API:', err);
+        if (!ignore) {
+          setError(
+            'No se pudo conectar con el servidor backend en http://localhost:5000. ' +
+            'Asegúrate de que la API de Express esté corriendo con "npm start" dentro de /backend.'
+          );
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   // 5. Cálculo de cantidad total de artículos para pasar al Navbar vía props
@@ -119,8 +160,12 @@ function App() {
       {/* Barra de Navegación con contador de carrito vía props */}
       <Navbar
         cartCount={cartCount}
-        currentView="catalogo"
-        onNavigate={() => {}}
+        currentView={selectedProduct ? 'detalle' : 'catalogo'}
+        onNavigate={(view) => {
+          if (view === 'catalogo') {
+            setSelectedProduct(null);
+          }
+        }}
         onOpenCart={() => setIsCartOpen(true)}
       />
 
@@ -159,45 +204,11 @@ function App() {
         )}
 
         {!loading && !error && (
-          <section className="catalog-section">
-            <div className="catalog-header">
-              <div>
-                <h2 className="section-title">Colección de Muebles</h2>
-                <p className="section-subtitle">
-                  {products.length} productos disponibles en catálogo.
-                </p>
-              </div>
-            </div>
-
-            <div className="products-grid">
-              {products.map((item) => (
-                <article key={item.id} className="product-card">
-                  <div className="product-image-container">
-                    <img src={item.imagen} alt={item.nombre} className="product-image" />
-                    <span className="product-category-tag">{item.categoria}</span>
-                  </div>
-                  <div className="product-info">
-                    <h3 className="product-title">{item.nombre}</h3>
-                    <p className="product-short-desc">{item.descripcion}</p>
-                    <div className="product-meta">
-                      <span className="product-price">
-                        {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(item.precio)}
-                      </span>
-                    </div>
-                    <div className="product-card-actions">
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={() => handleAddToCart(item, 1)}
-                      >
-                        + Cotizar 👜
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+          <ProductList
+            products={products}
+            onSelectProduct={(product) => setSelectedProduct(product)}
+            onAddToCart={handleAddToCart}
+          />
         )}
       </main>
 
