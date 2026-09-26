@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import CartModal from './components/CartModal';
 import ProductList from './components/ProductList';
+import ProductDetail from './components/ProductDetail';
 import './App.css';
 
 // URL de la API del Backend (Express)
@@ -169,18 +170,20 @@ function App() {
         onOpenCart={() => setIsCartOpen(true)}
       />
 
-      {/* Hero Banner */}
-      <section className="hero-banner">
-        <div className="hero-overlay">
-          <div className="hero-text-content">
-            <span className="hero-subtitle">Colección 2026 · Diseño de Autor</span>
-            <h1 className="hero-title">Muebles que alimentan el alma</h1>
-            <p className="hero-description">
-              Inspirados en la calidez de los años 60 y la nobleza de las maderas argentinas.
-            </p>
+      {/* Hero Banner (visible cuando se visualiza el catálogo) */}
+      {!selectedProduct && (
+        <section className="hero-banner">
+          <div className="hero-overlay">
+            <div className="hero-text-content">
+              <span className="hero-subtitle">Colección 2026 · Diseño de Autor</span>
+              <h1 className="hero-title">Muebles que alimentan el alma</h1>
+              <p className="hero-description">
+                Inspirados en la calidez de los años 60 y la nobleza de las maderas argentinas.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Contenido Principal */}
       <main className="main-content">
@@ -203,12 +206,27 @@ function App() {
           </div>
         )}
 
+        {/* Renderizado condicional: Detalle de Producto o Lista del Catálogo */}
         {!loading && !error && (
-          <ProductList
-            products={products}
-            onSelectProduct={(product) => setSelectedProduct(product)}
-            onAddToCart={handleAddToCart}
-          />
+          selectedProduct ? (
+            <ProductDetail
+              product={selectedProduct}
+              onBack={() => {
+                setSelectedProduct(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onAddToCart={handleAddToCart}
+            />
+          ) : (
+            <ProductList
+              products={products}
+              onSelectProduct={(product) => {
+                setSelectedProduct(product);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onAddToCart={handleAddToCart}
+            />
+          )
         )}
       </main>
 
