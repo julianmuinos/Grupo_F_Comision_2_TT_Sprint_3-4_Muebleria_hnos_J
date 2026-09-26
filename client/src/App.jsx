@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import CartModal from './components/CartModal';
+import ProductList from './components/ProductList';
+import ProductDetail from './components/ProductDetail';
+import HomeView from './components/HomeView';
+import ContactView from './components/ContactView';
+import Footer from './components/Footer';
 import './App.css';
 
 // URL de la API del Backend (Express)
@@ -14,7 +19,10 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 3. Estado global del Carrito de Compras en App.jsx con persistencia en localStorage
+  // 3. Vista actual activa ('inicio' | 'catalogo' | 'contacto')
+  const [currentView, setCurrentView] = useState('inicio');
+
+  // 4. Estado global del Carrito de Compras en App.jsx con persistencia en localStorage
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('hnosj_cart');
@@ -27,6 +35,9 @@ function App() {
   // Estado para visibilidad del modal del carrito
   const [isCartOpen, setIsCartOpen] = useState(false);
 
+  // Estado para el producto seleccionado en el catálogo (para detalle condicional)
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   // Persistir en localStorage ante cualquier modificación del carrito
   useEffect(() => {
     try {
@@ -37,7 +48,7 @@ function App() {
   }, [cart]);
 
   // 4. Conexión asíncrona al backend usando fetch
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -66,10 +77,47 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
+    let ignore = false;
+
+    const loadData = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error(`Error en el servidor: Código HTTP ${response.status}`);
+        }
+        const json = await response.json();
+        if (!ignore) {
+          if (json && Array.isArray(json.data)) {
+            setProducts(json.data);
+          } else if (Array.isArray(json)) {
+            setProducts(json);
+          } else {
+            throw new Error('El formato de datos devuelto por la API no es válido.');
+          }
+        }
+      } catch (err) {
+        console.error('Error al obtener productos desde la API:', err);
+        if (!ignore) {
+          setError(
+            'No se pudo conectar con el servidor backend en http://localhost:5000. ' +
+            'Asegúrate de que la API de Express esté corriendo con "npm start" dentro de /backend.'
+          );
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   // 5. Cálculo de cantidad total de artículos para pasar al Navbar vía props
@@ -114,31 +162,29 @@ function App() {
     setCart([]);
   };
 
+  const handleNavigate = (view) => {
+    setSelectedProduct(null);
+    setCurrentView(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectProduct = (product) => {
+    setSelectedProduct(product);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="app-container">
       {/* Barra de Navegación con contador de carrito vía props */}
       <Navbar
         cartCount={cartCount}
-        currentView="catalogo"
-        onNavigate={() => {}}
+        currentView={selectedProduct ? 'detalle' : currentView}
+        onNavigate={handleNavigate}
         onOpenCart={() => setIsCartOpen(true)}
       />
 
-      {/* Hero Banner */}
-      <section className="hero-banner">
-        <div className="hero-overlay">
-          <div className="hero-text-content">
-            <span className="hero-subtitle">Colección 2026 · Diseño de Autor</span>
-            <h1 className="hero-title">Muebles que alimentan el alma</h1>
-            <p className="hero-description">
-              Inspirados en la calidez de los años 60 y la nobleza de las maderas argentinas.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Contenido Principal */}
-      <main className="main-content">
+      <main className={`main-content ${currentView === 'inicio' && !selectedProduct ? 'main-content-home' : ''}`}>
         {loading && (
           <div className="state-container loading-container">
             <div className="spinner" />
@@ -149,57 +195,62 @@ function App() {
 
         {!loading && error && (
           <div className="state-container error-container">
-            <div className="error-icon">⚠️</div>
+            <div className="error-icon">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#B91C1C"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12.01" y1="16" y2="16" />
+              </svg>
+            </div>
             <h2>Error de Conexión</h2>
             <p className="error-detail">{error}</p>
             <button type="button" className="btn btn-primary" onClick={fetchProducts}>
-              🔄 Reintentar conexión
+              Reintentar conexión
             </button>
           </div>
         )}
 
+        {/* Renderizado condicional según la vista activa */}
         {!loading && !error && (
-          <section className="catalog-section">
-            <div className="catalog-header">
-              <div>
-                <h2 className="section-title">Colección de Muebles</h2>
-                <p className="section-subtitle">
-                  {products.length} productos disponibles en catálogo.
-                </p>
-              </div>
-            </div>
-
-            <div className="products-grid">
-              {products.map((item) => (
-                <article key={item.id} className="product-card">
-                  <div className="product-image-container">
-                    <img src={item.imagen} alt={item.nombre} className="product-image" />
-                    <span className="product-category-tag">{item.categoria}</span>
-                  </div>
-                  <div className="product-info">
-                    <h3 className="product-title">{item.nombre}</h3>
-                    <p className="product-short-desc">{item.descripcion}</p>
-                    <div className="product-meta">
-                      <span className="product-price">
-                        {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(item.precio)}
-                      </span>
-                    </div>
-                    <div className="product-card-actions">
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={() => handleAddToCart(item, 1)}
-                      >
-                        + Cotizar 👜
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+          selectedProduct ? (
+            <ProductDetail
+              product={selectedProduct}
+              onBack={() => {
+                setSelectedProduct(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onAddToCart={handleAddToCart}
+            />
+          ) : currentView === 'inicio' ? (
+            <HomeView
+              products={products}
+              onNavigate={handleNavigate}
+              onSelectProduct={handleSelectProduct}
+            />
+          ) : currentView === 'contacto' ? (
+            <ContactView />
+          ) : (
+            <ProductList
+              products={products}
+              onSelectProduct={handleSelectProduct}
+              onAddToCart={handleAddToCart}
+            />
+          )
         )}
       </main>
+
+      {/* Footer Oficial Hermanos Jota Heritage */}
+      <Footer onNavigate={handleNavigate} />
 
       {/* Modal / Drawer del Carrito */}
       <CartModal

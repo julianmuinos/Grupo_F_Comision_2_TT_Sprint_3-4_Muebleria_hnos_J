@@ -44,7 +44,21 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
       <aside className="cart-drawer" onClick={(e) => e.stopPropagation()}>
         <div className="cart-header">
           <div className="cart-title-row">
-            <span className="cart-icon-large">🛒</span>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--primary)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
             <h2>Tu Carrito de Compras</h2>
           </div>
           <button type="button" className="close-btn" onClick={onClose} aria-label="Cerrar carrito">
@@ -54,14 +68,40 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
 
         {checkoutComplete ? (
           <div className="checkout-success-view">
-            <div className="success-emoji">🎉</div>
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--verde-salvia)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
             <h3>¡Pedido confirmado con éxito!</h3>
             <p>Gracias por confiar en <strong>Mueblería Hermanos Jota</strong>. Te hemos enviado un correo con el detalle de entrega y factura.</p>
             <p className="redirect-note">Cerrando el carrito...</p>
           </div>
         ) : cart.length === 0 ? (
           <div className="cart-empty-view">
-            <div className="cart-empty-icon">🛋️</div>
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--text-muted)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect width="20" height="14" x="2" y="5" rx="2" />
+              <line x1="2" x2="22" y1="10" y2="10" />
+            </svg>
             <h3>Tu carrito está vacío</h3>
             <p>Aún no agregaste muebles a tu pedido.</p>
             <button type="button" className="btn btn-primary" onClick={onClose}>
@@ -101,8 +141,23 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
                         onClick={() => onRemoveItem(item.id)}
                         className="remove-btn"
                         title="Eliminar producto"
+                        aria-label={`Eliminar ${item.nombre}`}
                       >
-                        🗑️
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
                       </button>
                     </div>
                   </div>
