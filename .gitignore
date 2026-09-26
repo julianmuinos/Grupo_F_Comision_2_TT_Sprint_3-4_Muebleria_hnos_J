@@ -13,3 +13,6 @@ dist/
 dist-ssr/
 build/
 .DS_Store
+
+# Maquetas y diseño de referencia
+diseño-web-hermanos-jota/
