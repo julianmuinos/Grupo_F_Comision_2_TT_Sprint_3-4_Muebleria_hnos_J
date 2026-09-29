@@ -1,28 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
+import ContactForm from './ContactForm';
 
 /**
  * Componente ContactView
- * Basado en la maqueta de diseño oficial Hermanos Jota Heritage (contacto_hermanos_jota_2).
+ * Vista integral de contacto que presenta la información del Showroom oficial
+ * y el formulario controlado ContactForm.
  */
 const ContactView = () => {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    mensaje: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.nombre.trim() || !formData.email.trim() || !formData.mensaje.trim()) return;
-    setSubmitted(true);
-  };
-
-  const handleReset = () => {
-    setFormData({ nombre: '', email: '', mensaje: '' });
-    setSubmitted(false);
-  };
-
   return (
     <section className="contact-section-heritage" aria-labelledby="contact-heading">
       <div className="contact-header-block">
@@ -39,9 +23,9 @@ const ContactView = () => {
         <div className="showroom-card-heritage">
           <div className="showroom-img-header" />
           <div className="showroom-body">
-            <h2 className="showroom-card-title">Showroom Buenos Aires</h2>
+            <h2 className="showroom-card-title">Showroom Palermo Soho</h2>
             <p className="showroom-address">
-              Av. San Juan 2847<br />
+              Honduras 4920, Palermo Soho<br />
               Buenos Aires, Argentina
             </p>
             <div className="showroom-schedule">
@@ -59,7 +43,7 @@ const ContactView = () => {
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              <span>Lunes a Viernes, 10:00 a 18:00 hs</span>
+              <span>Lunes a Viernes 10:00 a 19:00 hs · Sábados 10:00 a 14:00 hs</span>
             </div>
 
             <div className="showroom-direct-actions">
@@ -84,7 +68,7 @@ const ContactView = () => {
                 Llamar (+54 11 5555-5555)
               </a>
               <a
-                href="https://maps.google.com/?q=Av.+San+Juan+2847,+Buenos+Aires"
+                href="https://maps.google.com/?q=Honduras+4920,+Palermo+Soho,+Buenos+Aires"
                 target="_blank"
                 rel="noreferrer"
                 className="btn btn-secondary-light btn-block"
@@ -109,100 +93,9 @@ const ContactView = () => {
           </div>
         </div>
 
-        {/* Formulario de Consulta */}
+        {/* Formulario de Consulta Controlado */}
         <div className="contact-form-container">
-          {!submitted ? (
-            <>
-              <h2 className="form-heading">Enviar una consulta</h2>
-              <form className="contact-form-heritage" onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label htmlFor="contact-nombre">Nombre Completo</label>
-                  <input
-                    id="contact-nombre"
-                    type="text"
-                    required
-                    placeholder="Ej. María Rossi"
-                    className="form-input"
-                    value={formData.nombre}
-                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="contact-email">Correo Electrónico</label>
-                  <input
-                    id="contact-email"
-                    type="email"
-                    required
-                    placeholder="maria@ejemplo.com"
-                    className="form-input"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="contact-mensaje">Mensaje o Consulta</label>
-                  <textarea
-                    id="contact-mensaje"
-                    required
-                    rows="5"
-                    placeholder="¿En qué podemos ayudarte? Podés consultarnos por medidas, maderas o tiempos de entrega."
-                    className="form-textarea"
-                    value={formData.mensaje}
-                    onChange={(e) => setFormData({ ...formData, mensaje: e.target.value })}
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-submit">
-                  Enviar Mensaje
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="contact-success-heritage" role="alert">
-              <div className="success-icon-circle">
-                <svg
-                  width="36"
-                  height="36"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--secondary)"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-              <h3>Mensaje Recibido</h3>
-              <p>
-                Gracias por comunicarte con <strong>Mueblería Hermanos Jota</strong>. Un asesor de nuestro taller responderá a tu correo a la brevedad.
-              </p>
-              <button
-                type="button"
-                className="btn btn-secondary-light"
-                onClick={handleReset}
-              >
-                Enviar otra consulta
-              </button>
-            </div>
-          )}
+          <ContactForm />
         </div>
       </div>
     </section>
