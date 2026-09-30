@@ -1,34 +1,61 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap');
 
 :root {
-  /* Paleta Oficial Hermanos Jota Heritage (DESIGN.md) */
-  --surface: #fff8f3;
-  --surface-dim: #e6d8c5;
-  --surface-bright: #fff8f3;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #fff2e2;
-  --surface-container: #fbecd9;
-  --surface-container-high: #f5e6d3;
-  --surface-container-highest: #efe0cd;
+  /* =========================================================
+     PALETA OFICIAL DEL MANUAL DE MARCA — HERMANOS JOTA
+     1. Siena Tostado (Tierra, calidez y nobleza de la madera)
+     2. Verde Salvia (Compromiso botánico y sustentabilidad FSC®)
+     3. Alabastro (Luminosidad orgánica, pureza y texturas claras)
+     ========================================================= */
+  --siena-tostado: #823b18;
+  --siena-tostado-hover: #6e3012;
+  --siena-tostado-container: #a0522d;
+  --siena-tostado-light: #fbece5;
+  --siena-tostado-border: rgba(130, 59, 24, 0.25);
+
+  --verde-salvia: #486730;
+  --verde-salvia-hover: #3d5828;
+  --verde-salvia-container: #c9eea9;
+  --verde-salvia-bg: #eff5ec;
+  --verde-salvia-border: rgba(72, 103, 48, 0.25);
+
+  --alabastro: #fff8f3;
+  --alabastro-suave: #fff2e2;
+  --alabastro-container: #fbecd9;
+  --alabastro-high: #f5e6d3;
+  --alabastro-highest: #efe0cd;
+  --alabastro-dim: #e6d8c5;
+  --alabastro-pure: #ffffff;
+  --alabastro-light: #fdf6ee;
+
+  /* Aliases de Material Design 3 enlazados al Manual de Marca */
+  --surface: var(--alabastro);
+  --surface-dim: var(--alabastro-dim);
+  --surface-bright: var(--alabastro);
+  --surface-container-lowest: var(--alabastro-pure);
+  --surface-container-low: var(--alabastro-suave);
+  --surface-container: var(--alabastro-container);
+  --surface-container-high: var(--alabastro-high);
+  --surface-container-highest: var(--alabastro-highest);
   --on-surface: #221a0f;
   --on-surface-variant: #54433c;
   --inverse-surface: #372f22;
   --inverse-on-surface: #feefdb;
   --outline: #87736b;
   --outline-variant: #dac1b8;
-  --surface-tint: #944925;
+  --surface-tint: var(--siena-tostado);
 
-  --primary: #823b18;
-  --primary-hover: #6e3012;
-  --primary-container: #a0522d;
-  --primary-light: #fbece5;
+  --primary: var(--siena-tostado);
+  --primary-hover: var(--siena-tostado-hover);
+  --primary-container: var(--siena-tostado-container);
+  --primary-light: var(--siena-tostado-light);
   --on-primary: #ffffff;
   --on-primary-container: #ffe1d6;
 
-  --secondary: #486730;
-  --secondary-hover: #3d5828;
-  --secondary-container: #c9eea9;
-  --secondary-bg: #eff5ec;
+  --secondary: var(--verde-salvia);
+  --secondary-hover: var(--verde-salvia-hover);
+  --secondary-container: var(--verde-salvia-container);
+  --secondary-bg: var(--verde-salvia-bg);
   --on-secondary: #ffffff;
   --on-secondary-container: #4e6d36;
 
@@ -2201,40 +2228,78 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
-.form-card-title {
+.contact-form-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-header-group {
+  margin-bottom: 1.75rem;
+}
+
+.form-heading {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--on-surface);
   margin-bottom: 0.4rem;
 }
 
-.form-card-desc {
+.form-subheading {
   font-size: 0.92rem;
   color: var(--on-surface-variant);
-  margin-bottom: 1.75rem;
+  line-height: 1.5;
 }
 
-.heritage-contact-form {
+.contact-form-heritage {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.form-field {
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-.field-label {
-  font-size: 0.85rem;
+.form-label {
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--on-surface);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-.field-input,
-.field-textarea {
+.required-mark {
+  color: var(--error);
+  font-weight: 700;
+}
+
+.optional-tag {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--on-surface-variant);
+  margin-left: 0.25rem;
+}
+
+.label-with-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.char-counter {
+  font-size: 0.76rem;
+  color: var(--on-surface-variant);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
@@ -2246,41 +2311,79 @@ body {
   transition: var(--transition);
 }
 
-.field-input:focus,
-.field-textarea:focus {
+.form-select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(130, 59, 24, 0.12);
+  box-shadow: 0 0 0 3px rgba(130, 59, 24, 0.14);
   background: #FFFFFF;
 }
 
-.field-helper {
-  font-size: 0.78rem;
-  color: var(--on-surface-variant);
+.input-error {
+  border-color: var(--error) !important;
+  background-color: #fff9f9 !important;
 }
 
-.btn-submit-contact {
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(186, 26, 26, 0.14) !important;
+}
+
+.field-error {
+  font-size: 0.78rem;
+  color: var(--error);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-submit {
   width: 100%;
   padding: 0.85rem;
   font-size: 0.95rem;
   margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
 }
 
+.spinner-mini {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* Estado de Éxito de Consulta */
 .contact-success-heritage {
   text-align: center;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
+  background: var(--surface-container-low);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
 }
 
-.success-icon-box {
-  width: 60px;
-  height: 60px;
+.success-icon-circle {
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: var(--secondary-bg);
-  color: var(--secondary);
+  background: var(--verde-salvia-bg);
+  border: 2px solid var(--verde-salvia-border);
+  color: var(--verde-salvia);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2288,7 +2391,7 @@ body {
 
 .success-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--on-surface);
 }
@@ -2296,8 +2399,64 @@ body {
 .success-desc {
   font-size: 0.95rem;
   color: var(--on-surface-variant);
-  max-width: 420px;
-  line-height: 1.5;
+  max-width: 440px;
+  line-height: 1.6;
+}
+
+.success-receipt-box {
+  width: 100%;
+  max-width: 440px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-align: left;
+}
+
+.receipt-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.receipt-label {
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+
+.receipt-value {
+  color: var(--on-surface);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-all;
+}
+
+.btn-reset-contact {
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+}
+
+/* Enlaces y tags de contacto en Footer */
+.footer-contact-link {
+  color: #feefdb;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.footer-contact-link:hover {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.footer-social-tag {
+  color: var(--secondary-container);
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 /* Footer Heritage */
@@ -2498,6 +2657,17 @@ body {
 }
 
 @media (max-width: 640px) {
+  .contact-form-container {
+    padding: 1.5rem 1.25rem;
+  }
+  .receipt-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  .receipt-value {
+    text-align: left;
+  }
   .footer-grid {
     grid-template-columns: 1fr;
   }
