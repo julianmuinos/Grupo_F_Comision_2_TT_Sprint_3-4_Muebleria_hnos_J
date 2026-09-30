@@ -1,5 +1,74 @@
 @import 'tailwindcss';
 
+@theme {
+  /* Paleta Oficial Hermanos Jota */
+  --color-siena-tostado: #A0522D;
+  --color-siena-tostado-hover: #863F1E;
+  --color-siena-tostado-light: #F7EFE9;
+
+  --color-verde-salvia: #87A96B;
+  --color-verde-salvia-bg: #EFF5EC;
+  --color-verde-salvia-dark: #628248;
+
+  --color-alabastro-calido: #F5E6D3;
+  --color-alabastro-light: #FAF4EC;
+  --color-alabastro-tint: #FCFAF7;
+
+  --color-vara-de-oro: #D4A437;
+  --color-vara-de-oro-light: #FBF6EC;
+
+  --color-rosa-polvoriento: #C47A6D;
+  --color-rosa-polvoriento-light: #F9EFEB;
+
+  /* Muestras de Madera */
+  --color-wood-nogal: #4A3326;
+  --color-wood-roble: #C9A980;
+  --color-wood-ebano: #221E1C;
+
+  /* Mapeo Semántico */
+  --color-primary: #A0522D;
+  --color-primary-hover: #863F1E;
+  --color-primary-container: #863F1E;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffe1d6;
+  --color-on-primary-fixed-variant: #76320f;
+
+  --color-secondary: #87A96B;
+  --color-secondary-hover: #628248;
+  --color-secondary-container: #EFF5EC;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #314e1b;
+
+  --color-tertiary: #D4A437;
+  --color-tertiary-container: #FBF6EC;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #5c4300;
+
+  --color-surface: #FCFAF7;
+  --color-surface-dim: #F5E6D3;
+  --color-surface-bright: #FCFAF7;
+  --color-surface-variant: #FAF4EC;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #FAF4EC;
+  --color-surface-container: #F5E6D3;
+  --color-surface-container-high: #EFE0CD;
+  --color-surface-container-highest: #E8D9C8;
+
+  --color-on-surface: #26201B;
+  --color-on-surface-variant: #5E534B;
+  --color-outline: #8E8278;
+  --color-outline-variant: #E8D9C8;
+
+  /* Tipografías & Tracking */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --letter-spacing-brand-title: 0.1em;
+  --letter-spacing-brand-cta: 0.08em;
+  --letter-spacing-brand-caption: 0.02em;
+}
+
 /* Reset base para Mueblería Hermanos Jota */
 :root {
   font-synthesis: none;
