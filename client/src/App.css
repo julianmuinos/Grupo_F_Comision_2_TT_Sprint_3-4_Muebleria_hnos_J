@@ -1,44 +1,88 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap');
 
 :root {
-  /* Paleta Oficial Hermanos Jota (Manual de Marca) */
-  --siena-tostado: #A0522D;
-  --siena-tostado-hover: #863F1E;
-  --siena-tostado-light: #F7EFE9;
+  /* =========================================================
+     PALETA OFICIAL DEL MANUAL DE MARCA — HERMANOS JOTA
+     1. Siena Tostado (Tierra, calidez y nobleza de la madera)
+     2. Verde Salvia (Compromiso botánico y sustentabilidad FSC®)
+     3. Alabastro (Luminosidad orgánica, pureza y texturas claras)
+     ========================================================= */
+  --siena-tostado: #823b18;
+  --siena-tostado-hover: #6e3012;
+  --siena-tostado-container: #a0522d;
+  --siena-tostado-light: #fbece5;
+  --siena-tostado-border: rgba(130, 59, 24, 0.25);
 
-  --verde-salvia: #87A96B;
-  --verde-salvia-bg: #EFF5EC;
-  --verde-salvia-dark: #628248;
+  --verde-salvia: #486730;
+  --verde-salvia-hover: #3d5828;
+  --verde-salvia-container: #c9eea9;
+  --verde-salvia-bg: #eff5ec;
+  --verde-salvia-border: rgba(72, 103, 48, 0.25);
 
-  --alabastro-calido: #F5E6D3;
-  --alabastro-light: #FAF4EC;
-  --alabastro-tint: #FCFAF7;
+  --alabastro: #fff8f3;
+  --alabastro-suave: #fff2e2;
+  --alabastro-container: #fbecd9;
+  --alabastro-high: #f5e6d3;
+  --alabastro-highest: #efe0cd;
+  --alabastro-dim: #e6d8c5;
+  --alabastro-pure: #ffffff;
+  --alabastro-light: #fdf6ee;
 
-  --vara-de-oro: #D4A437;
-  --rosa-polvoriento: #C47A6D;
+  /* Aliases de Material Design 3 enlazados al Manual de Marca */
+  --surface: var(--alabastro);
+  --surface-dim: var(--alabastro-dim);
+  --surface-bright: var(--alabastro);
+  --surface-container-lowest: var(--alabastro-pure);
+  --surface-container-low: var(--alabastro-suave);
+  --surface-container: var(--alabastro-container);
+  --surface-container-high: var(--alabastro-high);
+  --surface-container-highest: var(--alabastro-highest);
+  --on-surface: #221a0f;
+  --on-surface-variant: #54433c;
+  --inverse-surface: #372f22;
+  --inverse-on-surface: #feefdb;
+  --outline: #87736b;
+  --outline-variant: #dac1b8;
+  --surface-tint: var(--siena-tostado);
 
   --primary: var(--siena-tostado);
   --primary-hover: var(--siena-tostado-hover);
+  --primary-container: var(--siena-tostado-container);
   --primary-light: var(--siena-tostado-light);
+  --on-primary: #ffffff;
+  --on-primary-container: #ffe1d6;
+
   --secondary: var(--verde-salvia);
-  --secondary-hover: var(--verde-salvia-dark);
+  --secondary-hover: var(--verde-salvia-hover);
+  --secondary-container: var(--verde-salvia-container);
+  --secondary-bg: var(--verde-salvia-bg);
+  --on-secondary: #ffffff;
+  --on-secondary-container: #4e6d36;
 
-  --bg-main: #FCFAF7;
-  --bg-surface: #FAF4EC;
-  --bg-card: #FFFFFF;
-  --text-main: #26201B;
-  --text-muted: #5E534B;
-  --border: #E8D9C8;
-  --border-light: #EFE0CD;
+  --tertiary: #674b00;
+  --tertiary-container: #856200;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
 
-  --shadow-sm: 0 1px 4px rgba(74, 50, 40, 0.05);
-  --shadow-md: 0 4px 16px rgba(74, 50, 40, 0.08);
-  --shadow-lg: 0 12px 32px rgba(74, 50, 40, 0.12);
+  --bg-main: var(--surface);
+  --bg-surface: var(--surface-container-low);
+  --bg-card: var(--surface-container-lowest);
+  --text-main: var(--on-surface);
+  --text-muted: var(--on-surface-variant);
+  --border: var(--outline-variant);
+  --border-light: rgba(218, 193, 184, 0.4);
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
+  --shadow-sm: 0 1px 6px rgba(74, 50, 40, 0.05);
+  --shadow-md: 0 4px 20px rgba(74, 50, 40, 0.08);
+  --shadow-lg: 0 12px 36px rgba(74, 50, 40, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
   --transition: all 0.25s ease-in-out;
+  --navbar-height: 72px;
 }
 
 * {
@@ -70,6 +114,11 @@ body {
   margin: 0 auto;
   width: 100%;
   padding: 2.5rem 1.5rem;
+}
+
+.main-content-home {
+  max-width: 100%;
+  padding: 0 0 3rem 0;
 }
 
 /* =========================================================
@@ -642,31 +691,38 @@ body {
 .product-detail-layout {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
+  align-items: start;
   gap: 3rem;
   background: #FFFFFF;
-  padding: 2.75rem;
+  padding: 2.25rem 2.5rem 1.75rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
 }
 
 .detail-image-wrapper {
-  position: relative;
+  position: sticky;
+  top: calc(var(--navbar-height, 72px) + 24px);
+  align-self: start;
   border-radius: var(--radius-md);
   overflow: hidden;
-  height: 480px;
+  min-height: 520px;
+  height: clamp(520px, calc(100vh - 140px), 700px);
   background-color: var(--alabastro-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 2.5rem;
   border: 1px solid var(--border);
 }
 
 .detail-image {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 92%;
+  max-height: 88%;
+  width: auto;
+  height: auto;
   object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
 .detail-badge {
@@ -1384,11 +1440,34 @@ body {
     padding: 1.5rem;
   }
   .detail-image-wrapper {
-    height: 320px;
+    position: relative;
+    top: auto;
+    height: 340px;
+    min-height: unset;
+    max-height: unset;
+    align-self: auto;
+    padding: 1.5rem;
   }
   .footer-content {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding: 1.25rem 1rem;
+  }
+  .detail-image-wrapper {
+    position: relative;
+    top: auto;
+    height: 320px;
+    min-height: unset;
+    max-height: unset;
+    align-self: auto;
+    padding: 1.25rem;
   }
 }
 
