@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Componente ProductCard
@@ -10,6 +11,7 @@ import React, { useState } from 'react';
  * - Precio formateado en moneda argentina ($ ARS)
  */
 const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' }) => {
+  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
 
   if (!product) return null;
@@ -44,6 +46,15 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
     }
   };
 
+  const handleSelect = (e) => {
+    e?.stopPropagation?.();
+    if (onSelectProduct) {
+      onSelectProduct(product);
+    } else {
+      navigate(`/producto/${product.id}`);
+    }
+  };
+
   /* ==========================================
      VISTA EN LISTA (LIST VIEW)
      ========================================== */
@@ -51,7 +62,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
     return (
       <article
         className="product-card-list"
-        onClick={() => onSelectProduct?.(product)}
+        onClick={handleSelect}
         role="button"
         tabIndex={0}
         aria-label={`Ver detalles de ${nombre}`}
@@ -123,10 +134,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
               <button
                 type="button"
                 className="btn btn-secondary-light btn-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectProduct?.(product);
-                }}
+                onClick={handleSelect}
               >
                 Ver detalle →
               </button>
@@ -151,7 +159,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
   return (
     <article
       className="product-card"
-      onClick={() => onSelectProduct?.(product)}
+      onClick={handleSelect}
       role="button"
       tabIndex={0}
       aria-label={`Ver detalles de ${nombre}`}

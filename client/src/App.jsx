@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import CartModal from './components/CartModal';
 import ProductList from './components/ProductList';
@@ -6,6 +7,7 @@ import ProductDetail from './components/ProductDetail';
 import HomeView from './components/HomeView';
 import ContactView from './components/ContactView';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
 // URL de la API del Backend (Express con soporte de variable de entorno)
@@ -28,6 +30,9 @@ const requestProducts = async () => {
 };
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // 1. Estado para almacenar los productos de la API
   const [products, setProducts] = useState([]);
 
@@ -35,10 +40,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 3. Vista actual activa ('inicio' | 'catalogo' | 'contacto')
-  const [currentView, setCurrentView] = useState('inicio');
-
-  // 4. Estado global del Carrito de Compras en App.jsx con persistencia en localStorage
+  // 3. Estado global del Carrito de Compras en App.jsx con persistencia en localStorage
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('hnosj_cart');
@@ -50,9 +52,6 @@ function App() {
 
   // Estado para visibilidad del modal del carrito
   const [isCartOpen, setIsCartOpen] = useState(false);
-
-  // Estado para el producto seleccionado en el catálogo (para detalle condicional)
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Persistir en localStorage ante cualquier modificación del carrito
   useEffect(() => {
@@ -154,38 +153,22 @@ function App() {
     setCart([]);
   };
 
-  const handleNavigate = (view) => {
-    setSelectedProduct(null);
-    setCurrentView(view);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSelectProduct = (product) => {
-    setSelectedProduct(product);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const isHome = location.pathname === '/';
 
   return (
     <div className="app-container">
+      {/* Reset de scroll inmediato al cambiar de ruta */}
+      <ScrollToTop />
+
       {/* Barra de Navegación con contador de carrito vía props */}
       <Navbar
         cartCount={cartCount}
-        currentView={selectedProduct ? 'detalle' : currentView}
-        onNavigate={handleNavigate}
         onOpenCart={() => setIsCartOpen(true)}
       />
 
       {/* Contenido Principal */}
-      <main className={`main-content ${currentView === 'inicio' && !selectedProduct ? 'main-content-home' : ''}`}>
-        {loading && (
-          <div className="state-container loading-container">
-            <div className="spinner" />
-            <h2>Cargando catálogo de muebles...</h2>
-            <p>Conectando con la API REST en {API_URL}</p>
-          </div>
-        )}
-
-        {!loading && error && (
+      <main className={`main-content ${isHome ? 'main-content-home' : ''}`}>
+        {error && !loading ? (
           <div className="state-container error-container">
             <div className="error-icon">
               <svg
@@ -210,39 +193,78 @@ function App() {
               Reintentar conexión
             </button>
           </div>
-        )}
-
-        {/* Renderizado condicional según la vista activa */}
-        {!loading && !error && (
-          selectedProduct ? (
-            <ProductDetail
-              product={selectedProduct}
-              onBack={() => {
-                setSelectedProduct(null);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              onAddToCart={handleAddToCart}
+        ) : (
+          <Routes>
+            <Route
+              path="/"
+              element={
+                loading ? (
+                  <div className="state-container loading-container">
+                    <div className="spinner" />
+                    <h2>Cargando catálogo de muebles...</h2>
+                    <p>Conectando con la API REST en {API_URL}</p>
+                  </div>
+                ) : (
+                  <HomeView
+                    products={products}
+                    onAddToCart={handleAddToCart}
+                  />
+                )
+              }
             />
-          ) : currentView === 'inicio' ? (
-            <HomeView
-              products={products}
-              onNavigate={handleNavigate}
-              onSelectProduct={handleSelectProduct}
+            <Route
+              path="/catalogo"
+              element={
+                loading ? (
+                  <div className="state-container loading-container">
+                    <div className="spinner" />
+                    <h2>Cargando catálogo de muebles...</h2>
+                    <p>Conectando con la API REST en {API_URL}</p>
+                  </div>
+                ) : (
+                  <ProductList
+                    products={products}
+                    onAddToCart={handleAddToCart}
+                  />
+                )
+              }
             />
-          ) : currentView === 'contacto' ? (
-            <ContactView />
-          ) : (
-            <ProductList
-              products={products}
-              onSelectProduct={handleSelectProduct}
-              onAddToCart={handleAddToCart}
+            <Route path="/contacto" element={<ContactView />} />
+            <Route
+              path="/producto/:id"
+              element={
+                <ProductDetail
+                  products={products}
+                  loading={loading}
+                  onAddToCart={handleAddToCart}
+                />
+              }
             />
-          )
+            <Route
+              path="*"
+              element={
+                <div className="state-container">
+                  <h2>Página no encontrada (404)</h2>
+                  <p className="section-subtitle">
+                    La sección que estás buscando no existe o fue trasladada.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => navigate('/')}
+                    style={{ marginTop: '1rem' }}
+                  >
+                    Volver al Inicio
+                  </button>
+                </div>
+              }
+            />
+          </Routes>
         )}
       </main>
 
       {/* Footer Oficial Hermanos Jota Heritage */}
-      <Footer onNavigate={handleNavigate} />
+      <Footer />
 
       {/* Modal / Drawer del Carrito */}
       <CartModal

@@ -45,7 +45,10 @@ const MobileSidebar = ({
   }, [isOpen, onClose]);
 
   const handleLinkClick = (view) => {
-    onNavigate(view);
+    if (view === 'inicio') onNavigate?.('/');
+    else if (view === 'catalogo') onNavigate?.('/catalogo');
+    else if (view === 'contacto') onNavigate?.('/contacto');
+    else onNavigate?.(view);
     onClose();
   };
 
@@ -54,9 +57,13 @@ const MobileSidebar = ({
     onClose();
   };
 
-  const isHomeActive = currentView === 'inicio';
-  const isCatalogActive = currentView === 'catalogo' || currentView === 'detalle';
-  const isContactActive = currentView === 'contacto';
+  const isHomeActive = currentView === 'inicio' || currentView === '/';
+  const isCatalogActive =
+    currentView === 'catalogo' ||
+    currentView === '/catalogo' ||
+    currentView === 'detalle' ||
+    (typeof currentView === 'string' && currentView.startsWith('/producto'));
+  const isContactActive = currentView === 'contacto' || currentView === '/contacto';
 
   if (typeof document === 'undefined') return null;
 
