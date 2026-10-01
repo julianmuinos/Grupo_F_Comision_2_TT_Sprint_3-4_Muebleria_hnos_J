@@ -250,7 +250,7 @@ function App() {
       </main>
 
       {/* Footer Oficial Hermanos Jota Heritage */}
-      <Footer onNavigate={handleNavigate} />
+      <Footer />
 
       {/* Modal / Drawer del Carrito */}
       <CartModal
