@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import MobileSidebar from './MobileSidebar';
 
 /**
  * Componente Navbar
@@ -10,9 +11,35 @@ import React from 'react';
  * - onOpenCart: función para abrir el modal del carrito
  */
 const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <header className="navbar-container">
       <div className="navbar-content">
+        {/* Botón Hamburguesa exclusivo para pantallas móviles */}
+        <button
+          type="button"
+          className="mobile-menu-toggle"
+          onClick={() => setIsMobileMenuOpen(true)}
+          aria-label="Abrir menú de navegación"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="4" x2="20" y1="12" y2="12" />
+            <line x1="4" x2="20" y1="6" y2="6" />
+            <line x1="4" x2="20" y1="18" y2="18" />
+          </svg>
+        </button>
+
         {/* Logotipo Oficial Hermanos Jota */}
         <div
           className="brand"
@@ -32,7 +59,7 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
           </div>
         </div>
 
-        {/* Enlaces de Navegación */}
+        {/* Enlaces de Navegación (Desktop) */}
         <nav className="nav-links">
           <button
             type="button"
@@ -88,6 +115,16 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
           </button>
         </div>
       </div>
+
+      {/* Barra lateral de navegación móvil (Drawer) */}
+      <MobileSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        currentView={currentView}
+        onNavigate={onNavigate}
+        onOpenCart={onOpenCart}
+        cartCount={cartCount}
+      />
     </header>
   );
 };
