@@ -328,6 +328,235 @@ body {
 }
 
 /* =========================================================
+   BARRA LATERAL / DRAWER MOBILE HERMANOS JOTA
+   ========================================================= */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--on-surface);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.mobile-menu-toggle:hover {
+  background-color: rgba(130, 59, 24, 0.08);
+  color: var(--primary);
+}
+
+/* Backdrop */
+.mobile-sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: rgba(34, 26, 15, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-sidebar-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Drawer */
+.mobile-sidebar-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 300px;
+  max-width: 82vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: #fcf9f5;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 28px rgba(34, 26, 15, 0.22);
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-sidebar-drawer.open {
+  transform: translateX(0);
+}
+
+/* Cabecera del Drawer */
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.25rem 1rem 1.25rem;
+  flex-shrink: 0;
+}
+
+.mobile-drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mobile-drawer-logo {
+  height: 38px;
+  width: auto;
+}
+
+.mobile-drawer-brand-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.02em;
+}
+
+.mobile-drawer-close {
+  background: transparent;
+  border: none;
+  color: #54433c;
+  cursor: pointer;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.mobile-drawer-close:hover {
+  background-color: rgba(130, 59, 24, 0.08);
+  color: var(--primary);
+}
+
+/* Navegación dentro del Drawer */
+.mobile-drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1rem 1rem;
+  flex: 1;
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  color: #4a3e39;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-align: left;
+}
+
+.mobile-nav-icon {
+  flex-shrink: 0;
+  stroke: currentColor;
+  transition: stroke 0.2s ease;
+}
+
+.mobile-nav-text {
+  flex: 1;
+}
+
+.mobile-nav-item:hover {
+  background-color: rgba(130, 59, 24, 0.05);
+  color: var(--primary);
+}
+
+.mobile-nav-item.active {
+  background-color: #f6eee3;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.mobile-nav-item.active .mobile-nav-icon {
+  stroke: var(--primary);
+}
+
+.mobile-nav-item-cart {
+  position: relative;
+}
+
+.mobile-nav-badge {
+  margin-left: auto;
+  background-color: var(--primary);
+  color: #ffffff;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+/* Pie del Drawer (Showroom) */
+.mobile-drawer-footer {
+  margin-top: auto;
+  padding: 1.5rem 1.25rem 1.75rem 1.25rem;
+  border-top: 1px solid rgba(135, 115, 107, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  background-color: #fcf9f5;
+  flex-shrink: 0;
+}
+
+.mobile-drawer-showroom-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #87736b;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-drawer-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.82rem;
+  color: #54433c;
+  font-weight: 500;
+}
+
+.mobile-drawer-info-icon {
+  color: #87736b;
+  flex-shrink: 0;
+}
+
+/* =========================================================
    HERO BANNER
    ========================================================= */
 .hero-banner {
@@ -2687,6 +2916,107 @@ body {
   }
 }
 
+@media (max-width: 768px) {
+  /* Navbar Mobile */
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    display: none !important;
+  }
+
+  .navbar-content {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .brand {
+    gap: 0.6rem;
+  }
+
+  .brand-logo-img {
+    height: 36px;
+  }
+
+  .brand-name {
+    font-size: 1.15rem;
+  }
+
+  .brand-tagline {
+    font-size: 0.62rem;
+  }
+
+  .cart-button {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+    gap: 0.45rem;
+  }
+
+  /* Catalog Header & Controls */
+  .catalog-heritage-header {
+    padding: 1.5rem 1rem;
+    gap: 1.25rem;
+  }
+
+  .catalog-main-title {
+    font-size: 1.9rem;
+  }
+
+  .catalog-main-desc {
+    font-size: 0.95rem;
+  }
+
+  .catalog-search-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .search-box {
+    min-width: unset;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .catalog-controls-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .category-filters {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.4rem;
+  }
+
+  /* Detalle de producto */
+  .detail-purchase-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .action-buttons-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  .action-buttons-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .featured-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
 @media (max-width: 640px) {
   .contact-form-container {
     padding: 1.5rem 1.25rem;
@@ -2703,8 +3033,8 @@ body {
     grid-template-columns: 1fr;
   }
   .home-hero {
-    padding: 3rem 1.5rem;
-    min-height: 70vh;
+    padding: 3rem 1.25rem;
+    min-height: 65vh;
   }
   .home-hero-title {
     font-size: 2.2rem;
@@ -2721,4 +3051,43 @@ body {
   .showroom-action-btn {
     width: 100%;
   }
+
+  /* Grilla de productos a 1 columna en mobile */
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  /* Modal de carrito ocupa pantalla completa en mobile */
+  .cart-drawer {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .app-container {
+    overflow-x: hidden;
+  }
+
+  .main-content {
+    padding: 1rem 0.85rem 3rem 0.85rem;
+  }
+
+  .main-content-home {
+    padding: 0;
+  }
 }
+
+@media (max-width: 480px) {
+  .brand-text .brand-tagline {
+    display: none;
+  }
+
+  .cart-button .cart-text {
+    display: none;
+  }
+
+  .cart-button {
+    padding: 0.45rem 0.65rem;
+  }
+}
+
