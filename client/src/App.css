@@ -3248,14 +3248,13 @@ body {
    REDISEÑO OFICIAL CATÁLOGO HERMANOS JOTA (DOS COLUMNAS, SIDEBAR Y TOOLBAR)
    ========================================================= */
 
-/* Hero Banner Superior */
+/* Hero Banner Superior Oficial */
 .catalog-hero-banner {
-  background: linear-gradient(135deg, #fdf8f3 0%, #f7ede2 100%);
-  border: 1px solid rgba(218, 193, 184, 0.5);
-  border-radius: 16px;
-  padding: 2.25rem 2.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(74, 50, 40, 0.04);
+  background: #f4eae0;
+  border-radius: 14px;
+  padding: 2.2rem 3rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 16px rgba(74, 50, 40, 0.03);
 }
 
 .catalog-hero-inner {
@@ -3266,26 +3265,29 @@ body {
   flex-wrap: wrap;
 }
 
-.catalog-hero-titles {
+.catalog-hero-title-area {
   flex: 1;
   min-width: 280px;
 }
 
-.catalog-main-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.35rem;
+.catalog-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.85rem;
   font-weight: 700;
-  color: #221a0f;
-  line-height: 1.2;
+  color: #1a130d;
+  line-height: 1.15;
   margin-bottom: 0.5rem;
+  letter-spacing: -0.015em;
 }
 
-.catalog-main-desc {
-  color: #6b5b53;
-  font-size: 0.98rem;
-  line-height: 1.55;
-  max-width: 520px;
+.catalog-hero-subtitle {
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #55443b;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  max-width: 450px;
   margin: 0;
+  font-weight: 400;
 }
 
 .catalog-hero-search-area {
@@ -3299,46 +3301,48 @@ body {
 
 .catalog-search-form {
   display: flex;
-  gap: 0.6rem;
-  align-items: center;
+  width: 100%;
 }
 
-.search-input-wrapper {
+/* Barra de Búsqueda Blanca Unificada con Botón Integrado */
+.search-bar-unified {
   position: relative;
   display: flex;
   align-items: center;
   background: #ffffff;
-  border: 1.5px solid #d4c4b7;
   border-radius: 8px;
-  padding: 0 0.85rem;
-  flex: 1;
-  height: 44px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 4px 5px 4px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(210, 195, 180, 0.35);
+  width: 100%;
+  height: 48px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.search-input-wrapper:focus-within {
-  border-color: #823b18;
-  box-shadow: 0 0 0 3px rgba(130, 59, 24, 0.12);
+.search-bar-unified:focus-within {
+  border-color: #793618;
+  box-shadow: 0 0 0 3px rgba(121, 54, 24, 0.12);
 }
 
 .search-icon-svg {
-  color: #87736b;
+  color: #7b6b63;
   flex-shrink: 0;
-  margin-right: 0.6rem;
+  margin-right: 0.65rem;
 }
 
 .catalog-search-input {
   border: none;
   background: transparent;
   outline: none;
-  font-size: 0.9rem;
-  color: #221a0f;
+  font-size: 0.92rem;
+  color: #1a130d;
   width: 100%;
+  flex: 1;
   font-family: inherit;
 }
 
 .catalog-search-input::placeholder {
-  color: #a3938b;
+  color: #9c8d84;
   font-size: 0.88rem;
 }
 
@@ -3349,6 +3353,7 @@ body {
   font-size: 0.85rem;
   cursor: pointer;
   padding: 0.25rem;
+  margin-right: 0.35rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3357,26 +3362,27 @@ body {
 }
 
 .clear-search-x:hover {
-  color: #221a0f;
+  color: #1a130d;
 }
 
 .btn-search-solid {
-  background-color: #823b18;
+  background-color: #793618;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  height: 44px;
-  padding: 0 1.4rem;
+  border-radius: 6px;
+  height: 40px;
+  padding: 0 1.45rem;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.1s ease;
   font-family: inherit;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-search-solid:hover {
-  background-color: #6e3012;
+  background-color: #642b12;
 }
 
 .btn-search-solid:active {
@@ -3391,27 +3397,28 @@ body {
 
 .quick-tag-pill {
   background: #ffffff;
-  border: 1px solid #dcd1c4;
-  color: #54433c;
-  padding: 0.35rem 0.85rem;
+  border: 1px solid rgba(218, 193, 184, 0.45);
+  color: #52433b;
+  padding: 0.35rem 0.9rem;
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .quick-tag-pill:hover {
-  border-color: #823b18;
-  color: #823b18;
+  border-color: #793618;
+  color: #793618;
   background: #fdf8f4;
 }
 
 .quick-tag-pill.active {
-  background: #823b18;
+  background: #793618;
   color: #ffffff;
-  border-color: #823b18;
+  border-color: #793618;
 }
 
 /* Layout de 2 columnas: Sidebar + Grid */
@@ -3556,59 +3563,6 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-/* Tarjeta Bespoke en Sidebar */
-.sidebar-bespoke-card {
-  background-color: #f7efe6;
-  border: 1px solid #ebdcd0;
-  border-radius: 12px;
-  padding: 1.5rem 1.25rem;
-  margin-top: 1rem;
-}
-
-.bespoke-sparkle-icon {
-  font-size: 1.3rem;
-  color: #823b18;
-  margin-bottom: 0.4rem;
-  line-height: 1;
-}
-
-.bespoke-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.12rem;
-  font-weight: 700;
-  color: #221a0f;
-  margin-bottom: 0.35rem;
-}
-
-.bespoke-desc {
-  font-size: 0.85rem;
-  color: #6b5b53;
-  line-height: 1.45;
-  margin-bottom: 1.1rem;
-}
-
-.bespoke-consultar-btn {
-  background: none;
-  border: none;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #823b18;
-  cursor: pointer;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  font-family: inherit;
-}
-
-.bespoke-consultar-btn:hover {
-  opacity: 0.85;
-  transform: translateX(2px);
 }
 
 /* Columna de Productos y Toolbar */
@@ -4109,10 +4063,6 @@ body {
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid #ebdcd0;
-  }
-
-  .sidebar-bespoke-card {
-    display: none;
   }
 }
 

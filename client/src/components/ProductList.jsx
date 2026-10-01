@@ -171,7 +171,7 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart, onNavigate }
 
           <div className="catalog-hero-search-area">
             <form className="catalog-search-form" onSubmit={handleSearchSubmit}>
-              <div className="search-input-wrapper">
+              <div className="search-bar-unified">
                 <svg
                   className="search-icon-svg"
                   width="18"
@@ -179,7 +179,7 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart, onNavigate }
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
@@ -208,10 +208,10 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart, onNavigate }
                     ✕
                   </button>
                 )}
+                <button type="submit" className="btn-search-solid">
+                  Buscar
+                </button>
               </div>
-              <button type="submit" className="btn-search-solid">
-                Buscar
-              </button>
             </form>
 
             {/* Quick Filters / Tags */}
@@ -306,20 +306,6 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart, onNavigate }
                 );
               })}
             </ul>
-          </div>
-
-          {/* Tarjeta Promocional: Servicio Bespoke */}
-          <div className="sidebar-bespoke-card">
-            <div className="bespoke-sparkle-icon">✦</div>
-            <h4 className="bespoke-title">Servicio Bespoke</h4>
-            <p className="bespoke-desc">Personalice dimensiones y acabados.</p>
-            <button
-              type="button"
-              className="bespoke-consultar-btn"
-              onClick={() => onNavigate?.('contacto')}
-            >
-              CONSULTAR →
-            </button>
           </div>
         </aside>
 
