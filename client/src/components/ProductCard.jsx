@@ -45,7 +45,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart }) => {
 
         {/* Badges Condicionales */}
         {product.destacado && (
-          <span className="product-badge badge-nuevo">Destacado</span>
+          <span className="product-badge badge-destacado badge-nuevo">Destacado</span>
         )}
         {!product.destacado && product.materiales && product.materiales.includes('FSC®') && (
           <span className="product-badge badge-sustentable">Sustentable</span>
