@@ -1,18 +1,42 @@
-# Dependencias
+# Dependencias (aplica a raíz, client y backend)
 node_modules/
-*/node_modules/
+.pnp
+.pnp.js
+
+# Variables de entorno y credenciales
+.env
+.env.local
+.env.*.local
+*.local
+!.env.example
 
 # Logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Compilación y builds
 dist/
 dist-ssr/
 build/
+
+# Configuraciones de editores e IDEs
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos del sistema operativo
 .DS_Store
+Thumbs.db
 
 # Maquetas y diseño de referencia
 diseño-web-hermanos-jota/
