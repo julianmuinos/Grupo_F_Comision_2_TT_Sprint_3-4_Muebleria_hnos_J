@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 /**
  * Componente ProductDetail
@@ -9,20 +10,51 @@ import React, { useState } from 'react';
  * - Selector de cantidad y adición al carrito / cotización con feedback visual
  * 
  * Props:
- * - product: Objeto completo del producto seleccionado
- * - onBack: Función callback para regresar al listado del catálogo
+ * - product: Objeto opcional del producto seleccionado (si se pasa directamente)
+ * - products: Array completo de productos para resolver por ID si viene de URL
+ * - loading: Estado de carga para evitar flash de 'no encontrado' al recargar
+ * - onBack: Función callback opcional para regresar al listado del catálogo
  * - onAddToCart: Función callback para añadir cantidad especificada al carrito
  */
-const ProductDetail = ({ product, onBack, onAddToCart }) => {
+const ProductDetail = ({ product: propProduct, products = [], loading = false, onBack: propOnBack, onAddToCart }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [showToast, setShowToast] = useState(false);
+
+  // Manejador del botón volver con historial del navegador y fallback seguro al catálogo
+  const handleBack = () => {
+    if (propOnBack) {
+      propOnBack();
+      return;
+    }
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/catalogo');
+    }
+  };
+
+  // Resolver el producto: prop directa o búsqueda por parámetro :id de la URL
+  const product = propProduct || (id && products.length > 0 ? products.find((p) => String(p.id) === String(id)) : null);
+
+  // Estado de carga mientras se obtienen los productos al abrir link directo o refrescar
+  if (loading && !product) {
+    return (
+      <div className="state-container loading-container">
+        <div className="spinner" />
+        <h2>Cargando detalle del producto...</h2>
+        <p>Buscando especificaciones en el catálogo oficial</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
       <div className="state-container">
         <h2>Producto no encontrado</h2>
-        <p className="section-subtitle">No se seleccionó ningún producto para ver el detalle.</p>
-        <button type="button" className="btn btn-primary" onClick={onBack} style={{ marginTop: '1rem' }}>
+        <p className="section-subtitle">No se encontró ningún producto con ese identificador.</p>
+        <button type="button" className="btn btn-primary" onClick={handleBack} style={{ marginTop: '1rem' }}>
           ← Volver al catálogo
         </button>
       </div>
@@ -108,7 +140,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
         <button
           type="button"
           className="back-link-btn"
-          onClick={onBack}
+          onClick={handleBack}
           aria-label="Volver a la vista del catálogo"
         >
           ← Volver al catálogo
@@ -255,7 +287,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
               <button
                 type="button"
                 className="btn btn-secondary-light btn-large"
-                onClick={onBack}
+                onClick={handleBack}
                 aria-label="Volver al catálogo"
               >
                 Volver al Catálogo

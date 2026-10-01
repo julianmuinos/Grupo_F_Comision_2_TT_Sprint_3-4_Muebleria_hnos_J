@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Componente HomeView (Inicio)
@@ -6,10 +7,31 @@ import React from 'react';
  * 
  * Props:
  * - products: Array de productos obtenidos de la API
- * - onNavigate: Función para cambiar a otra vista ('catalogo', 'contacto', etc.)
- * - onSelectProduct: Función para abrir el detalle de un producto específico
+ * - onNavigate: Función opcional para cambiar a otra vista ('catalogo', 'contacto', etc.)
+ * - onSelectProduct: Función opcional para abrir el detalle de un producto específico
  */
 const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
+  const navigate = useNavigate();
+
+  const handleNav = (target) => {
+    if (onNavigate) {
+      onNavigate(target);
+    } else {
+      if (target === 'catalogo') navigate('/catalogo');
+      else if (target === 'contacto') navigate('/contacto');
+      else if (target === 'inicio') navigate('/');
+      else navigate(target);
+    }
+  };
+
+  const handleSelect = (product) => {
+    if (onSelectProduct) {
+      onSelectProduct(product);
+    } else {
+      navigate(`/producto/${product.id}`);
+    }
+  };
+
   // Obtenemos las 4 piezas destacadas del catálogo
   const featuredProducts = products.filter((p) => p.destacado).slice(0, 4);
 
@@ -43,7 +65,7 @@ const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
             <button
               type="button"
               className="btn btn-primary btn-hero"
-              onClick={() => onNavigate('catalogo')}
+              onClick={() => handleNav('catalogo')}
             >
               Explorar Catálogo
               <svg
@@ -78,7 +100,7 @@ const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
           <button
             type="button"
             className="btn-link-action"
-            onClick={() => onNavigate('catalogo')}
+            onClick={() => handleNav('catalogo')}
           >
             Ver todas las piezas
             <svg
@@ -103,7 +125,7 @@ const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
             <article key={product.id} className="featured-card">
               <div
                 className="featured-card-img-wrap"
-                onClick={() => onSelectProduct(product)}
+                onClick={() => handleSelect(product)}
                 role="button"
                 tabIndex={0}
                 aria-label={`Ver detalles de ${product.nombre}`}
@@ -124,7 +146,7 @@ const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
                 <div className="featured-title-row">
                   <h3
                     className="featured-card-title"
-                    onClick={() => onSelectProduct(product)}
+                    onClick={() => handleSelect(product)}
                     title={product.nombre}
                   >
                     {product.nombre}
@@ -136,7 +158,7 @@ const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
                   <button
                     type="button"
                     className="btn btn-secondary-light btn-detail-action"
-                    onClick={() => onSelectProduct(product)}
+                    onClick={() => handleSelect(product)}
                   >
                     Ver Detalle
                   </button>
@@ -250,7 +272,7 @@ const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => onNavigate('contacto')}
+              onClick={() => handleNav('contacto')}
             >
               Cómo Llegar y Contacto
             </button>

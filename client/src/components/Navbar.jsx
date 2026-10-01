@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MobileSidebar from './MobileSidebar';
 
 /**
@@ -6,12 +7,29 @@ import MobileSidebar from './MobileSidebar';
  * Basado en la identidad oficial de Hermanos Jota (Sprint 1 & 2)
  * Props:
  * - cartCount: cantidad total de artículos en el carrito
- * - currentView: vista actual ('catalogo' | 'contacto' | 'detalle')
- * - onNavigate: función para cambiar de vista
+ * - currentView: vista actual opcional
+ * - onNavigate: función opcional para cambiar de vista
  * - onOpenCart: función para abrir el modal del carrito
  */
-const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
+const Navbar = ({ cartCount, currentView: propCurrentView, onNavigate, onOpenCart }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNavigate = (path) => {
+    if (onNavigate) {
+      onNavigate(path);
+    } else {
+      navigate(path);
+    }
+  };
+
+  // Determinar vista activa según la ruta actual ('Catálogo' activo también en /producto/:id)
+  const isHome = location.pathname === '/';
+  const isCatalog = location.pathname === '/catalogo' || location.pathname.startsWith('/producto');
+  const isContact = location.pathname === '/contacto';
+
+  const activeView = propCurrentView || (isHome ? 'inicio' : isCatalog ? 'catalogo' : isContact ? 'contacto' : '');
 
   return (
     <header className="navbar-container">
@@ -43,7 +61,7 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
         {/* Logotipo Oficial Hermanos Jota */}
         <div
           className="brand"
-          onClick={() => onNavigate('inicio')}
+          onClick={() => handleNavigate('/')}
           role="button"
           tabIndex={0}
           title="Ir al inicio"
@@ -63,22 +81,22 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
         <nav className="nav-links">
           <button
             type="button"
-            className={`nav-button ${currentView === 'inicio' ? 'active' : ''}`}
-            onClick={() => onNavigate('inicio')}
+            className={`nav-button ${isHome ? 'active' : ''}`}
+            onClick={() => handleNavigate('/')}
           >
             Inicio
           </button>
           <button
             type="button"
-            className={`nav-button ${currentView === 'catalogo' || currentView === 'detalle' ? 'active' : ''}`}
-            onClick={() => onNavigate('catalogo')}
+            className={`nav-button ${isCatalog ? 'active' : ''}`}
+            onClick={() => handleNavigate('/catalogo')}
           >
             Catálogo
           </button>
           <button
             type="button"
-            className={`nav-button ${currentView === 'contacto' ? 'active' : ''}`}
-            onClick={() => onNavigate('contacto')}
+            className={`nav-button ${isContact ? 'active' : ''}`}
+            onClick={() => handleNavigate('/contacto')}
           >
             Contacto
           </button>
@@ -108,7 +126,6 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
               <path d="M3 6h18" />
               <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
-            <span className="cart-text">Cotización</span>
             <span className="cart-badge" id="cart-counter">
               {cartCount}
             </span>
@@ -120,8 +137,8 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
       <MobileSidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
-        currentView={currentView}
-        onNavigate={onNavigate}
+        currentView={activeView}
+        onNavigate={handleNavigate}
         onOpenCart={onOpenCart}
         cartCount={cartCount}
       />
