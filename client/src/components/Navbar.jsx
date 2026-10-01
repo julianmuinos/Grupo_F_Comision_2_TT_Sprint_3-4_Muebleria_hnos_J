@@ -108,7 +108,6 @@ const Navbar = ({ cartCount, currentView, onNavigate, onOpenCart }) => {
               <path d="M3 6h18" />
               <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
-            <span className="cart-text">Cotización</span>
             <span className="cart-badge" id="cart-counter">
               {cartCount}
             </span>
