@@ -69,12 +69,12 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
           <div className="search-box">
             <svg
               className="search-box-icon"
-              width="18"
-              height="18"
+              width="19"
+              height="19"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="var(--outline)"
-              strokeWidth="2"
+              stroke="currentColor"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
@@ -110,8 +110,8 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
               <button
                 key={tag}
                 type="button"
-                className="quick-tag-chip"
-                onClick={() => setSearchTerm(tag)}
+                className={`quick-tag-chip ${searchTerm.toLowerCase() === tag.toLowerCase() ? 'active' : ''}`}
+                onClick={() => setSearchTerm(searchTerm.toLowerCase() === tag.toLowerCase() ? '' : tag)}
               >
                 {tag}
               </button>

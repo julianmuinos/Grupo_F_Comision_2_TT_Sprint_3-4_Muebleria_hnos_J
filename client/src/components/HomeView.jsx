@@ -244,7 +244,7 @@ const HomeView = ({ products = [], onNavigate, onSelectProduct }) => {
           <span className="showroom-tag">Experiencia Presencial</span>
           <h2 className="showroom-title">Visita nuestro Showroom en Buenos Aires</h2>
           <p className="showroom-desc">
-            Te invitamos a tocar las maderas, apreciar las texturas y encontrar la pieza perfecta para tu hogar en Honduras 4920, Palermo Soho.
+            Te invitamos a tocar las maderas, apreciar las texturas y encontrar la pieza perfecta para tu hogar.
           </p>
           <div className="showroom-actions">
             <button

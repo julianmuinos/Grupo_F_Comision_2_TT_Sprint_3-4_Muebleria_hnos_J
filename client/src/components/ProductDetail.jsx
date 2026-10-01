@@ -135,7 +135,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
 
           {/* Badges de producto */}
           {product.destacado && (
-            <span className="detail-badge badge-nuevo">Pieza Destacada</span>
+            <span className="detail-badge badge-destacado badge-nuevo">Pieza Destacada</span>
           )}
           {!product.destacado && product.materiales && product.materiales.includes('FSC®') && (
             <span className="detail-badge badge-sustentable">Madera FSC®</span>
