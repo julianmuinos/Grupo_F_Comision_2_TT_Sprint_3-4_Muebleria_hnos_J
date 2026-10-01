@@ -11,7 +11,7 @@ import ProductCard from './ProductCard';
  * - Grilla de productos dinámica renderizada con .map() y keys únicas
  * - Paginación interactiva
  */
-const ProductList = ({ products = [], onSelectProduct, onAddToCart, onNavigate }) => {
+const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
   const [searchInput, setSearchInput] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState(new Set());

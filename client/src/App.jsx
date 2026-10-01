@@ -8,8 +8,24 @@ import ContactView from './components/ContactView';
 import Footer from './components/Footer';
 import './App.css';
 
-// URL de la API del Backend (Express)
-const API_URL = 'http://localhost:5000/api/productos';
+// URL de la API del Backend (Express con soporte de variable de entorno)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/productos';
+
+// Función auxiliar para consultar la API de productos
+const requestProducts = async () => {
+  const response = await fetch(API_URL);
+  if (!response.ok) {
+    throw new Error(`Error en el servidor: Código HTTP ${response.status}`);
+  }
+  const json = await response.json();
+  if (json && Array.isArray(json.data)) {
+    return json.data;
+  }
+  if (Array.isArray(json)) {
+    return json;
+  }
+  throw new Error('El formato de datos devuelto por la API no es válido.');
+};
 
 function App() {
   // 1. Estado para almacenar los productos de la API
@@ -47,31 +63,18 @@ function App() {
     }
   }, [cart]);
 
-  // 4. Conexión asíncrona al backend usando fetch
+  // Manejador para reintentar la conexión bajo demanda (evento de usuario)
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(API_URL);
-
-      if (!response.ok) {
-        throw new Error(`Error en el servidor: Código HTTP ${response.status}`);
-      }
-
-      const json = await response.json();
-
-      if (json && Array.isArray(json.data)) {
-        setProducts(json.data);
-      } else if (Array.isArray(json)) {
-        setProducts(json);
-      } else {
-        throw new Error('El formato de datos devuelto por la API no es válido.');
-      }
+      const data = await requestProducts();
+      setProducts(data);
     } catch (err) {
       console.error('Error al obtener productos desde la API:', err);
       setError(
-        'No se pudo conectar con el servidor backend en http://localhost:5000. ' +
+        `No se pudo conectar con el servidor backend en ${API_URL}. ` +
         'Asegúrate de que la API de Express esté corriendo con "npm start" dentro de /backend.'
       );
     } finally {
@@ -79,41 +82,30 @@ function App() {
     }
   }, []);
 
+  // Carga inicial asíncrona al montar el componente (con control de desmontaje)
   useEffect(() => {
     let ignore = false;
 
-    const loadData = async () => {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error(`Error en el servidor: Código HTTP ${response.status}`);
-        }
-        const json = await response.json();
+    requestProducts()
+      .then((data) => {
         if (!ignore) {
-          if (json && Array.isArray(json.data)) {
-            setProducts(json.data);
-          } else if (Array.isArray(json)) {
-            setProducts(json);
-          } else {
-            throw new Error('El formato de datos devuelto por la API no es válido.');
-          }
+          setProducts(data);
         }
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error('Error al obtener productos desde la API:', err);
         if (!ignore) {
           setError(
-            'No se pudo conectar con el servidor backend en http://localhost:5000. ' +
+            `No se pudo conectar con el servidor backend en ${API_URL}. ` +
             'Asegúrate de que la API de Express esté corriendo con "npm start" dentro de /backend.'
           );
         }
-      } finally {
+      })
+      .finally(() => {
         if (!ignore) {
           setLoading(false);
         }
-      }
-    };
-
-    loadData();
+      });
 
     return () => {
       ignore = true;
@@ -244,7 +236,6 @@ function App() {
               products={products}
               onSelectProduct={handleSelectProduct}
               onAddToCart={handleAddToCart}
-              onNavigate={handleNavigate}
             />
           )
         )}
