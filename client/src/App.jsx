@@ -244,13 +244,14 @@ function App() {
               products={products}
               onSelectProduct={handleSelectProduct}
               onAddToCart={handleAddToCart}
+              onNavigate={handleNavigate}
             />
           )
         )}
       </main>
 
       {/* Footer Oficial Hermanos Jota Heritage */}
-      <Footer />
+      <Footer onNavigate={handleNavigate} />
 
       {/* Modal / Drawer del Carrito */}
       <CartModal

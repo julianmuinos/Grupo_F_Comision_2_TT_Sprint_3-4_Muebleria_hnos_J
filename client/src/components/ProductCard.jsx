@@ -1,41 +1,163 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 /**
  * Componente ProductCard
- * Tarjeta individual para presentar un mueble en el catálogo con:
+ * Tarjeta individual basada en el diseño oficial de Hermanos Jota:
+ * - Soporta vista en cuadrícula (grid) y vista en lista (list)
+ * - Badges oficiales (NUEVO, SUSTENTABLE, AGOTADO)
+ * - Botón de favorito interactivo (corazón ♡ / ♥)
+ * - Muestras de color / swatches y stock disponible
  * - Precio formateado en moneda argentina ($ ARS)
- * - Badges visuales (Destacado / Sustentable) y etiqueta de categoría
- * - Botón de ver detalle y botón para cotizar (+ Cotizar)
- * 
- * Props:
- * - product: Objeto con los datos del producto (id, nombre, precio, imagen, categoria, stock, etc.)
- * - onSelectProduct: Función callback para ver el detalle completo del producto
- * - onAddToCart: Función callback para agregar al carrito / cotización
  */
-const ProductCard = ({ product, onSelectProduct, onAddToCart }) => {
+const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' }) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+
   if (!product) return null;
 
-  // Formato oficial de moneda en pesos argentinos ($ ARS) sin decimales
   const precioFormateado = new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: 'ARS',
     maximumFractionDigits: 0,
   }).format(product.precio ?? product.price ?? 0);
 
-  const hayStock = (product.stock ?? 0) > 0;
+  const hayStock = (product.stock ?? 0) > 0 && product.inStock !== false;
   const imagenSrc = product.imagen || product.image || product.foto;
   const nombre = product.nombre || product.title;
+  const descripcion = product.descripcion || product.desc || '';
+  const swatches = product.swatches || [];
+  const stockLabel = product.stockLabel || (!hayStock ? 'Agotado' : null);
 
-  return (
-    <article className="product-card">
-      {/* Contenedor de Imagen con Badges y Tag de Categoría */}
-      <div
-        className="product-image-container"
+  // Badge condicional
+  const badgeText = !hayStock
+    ? 'AGOTADO'
+    : product.badge?.text || product.badge || (product.destacado ? 'NUEVO' : null);
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    setIsFavorite((prev) => !prev);
+  };
+
+  const handleAddClick = (e) => {
+    e.stopPropagation();
+    if (hayStock) {
+      onAddToCart?.(product, 1);
+    }
+  };
+
+  /* ==========================================
+     VISTA EN LISTA (LIST VIEW)
+     ========================================== */
+  if (viewMode === 'list') {
+    return (
+      <article
+        className="product-card-list"
         onClick={() => onSelectProduct?.(product)}
         role="button"
         tabIndex={0}
         aria-label={`Ver detalles de ${nombre}`}
       >
+        <div className="product-list-image-container">
+          <img
+            src={imagenSrc}
+            alt={nombre}
+            className="product-list-image"
+            loading="lazy"
+          />
+          {badgeText && (
+            <span
+              className={`product-badge ${
+                badgeText === 'NUEVO'
+                  ? 'badge-nuevo'
+                  : badgeText === 'SUSTENTABLE'
+                  ? 'badge-sustentable'
+                  : 'badge-agotado'
+              }`}
+            >
+              {badgeText}
+            </span>
+          )}
+        </div>
+
+        <div className="product-list-info">
+          <div className="product-list-header">
+            <div className="product-list-title-row">
+              <h3 className="product-title">{nombre}</h3>
+              <span className="product-price">{precioFormateado}</span>
+            </div>
+            <p className="product-list-desc">{descripcion}</p>
+
+            <div className="product-list-tags">
+              <span className="tag-chip">{product.categoria || product.category}</span>
+              {product.material && (
+                <span className="tag-chip tag-material">{product.material}</span>
+              )}
+              {product.medidas && (
+                <span className="tag-chip tag-spec">📐 {product.medidas}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="product-list-footer">
+            <div className="product-swatches-container">
+              {swatches.map((color, idx) => (
+                <span
+                  key={idx}
+                  className="color-swatch-dot"
+                  style={{ backgroundColor: color }}
+                  title="Tono disponible"
+                />
+              ))}
+              {stockLabel && <span className="stock-label-pill">{stockLabel}</span>}
+            </div>
+
+            <div className="product-list-actions">
+              <button
+                type="button"
+                className="favorite-heart-btn"
+                onClick={handleFavoriteClick}
+                title={isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                aria-label="Favorito"
+              >
+                {isFavorite ? '♥' : '♡'}
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary-light btn-sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectProduct?.(product);
+                }}
+              >
+                Ver detalle →
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={handleAddClick}
+                disabled={!hayStock}
+              >
+                {hayStock ? '+ Cotizar' : 'Agotado'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  /* ==========================================
+     VISTA EN CUADRÍCULA (GRID VIEW)
+     ========================================== */
+  return (
+    <article
+      className="product-card"
+      onClick={() => onSelectProduct?.(product)}
+      role="button"
+      tabIndex={0}
+      aria-label={`Ver detalles de ${nombre}`}
+    >
+      {/* Contenedor de Imagen con Badge y Corazón */}
+      <div className="product-image-container">
         <img
           src={imagenSrc}
           alt={nombre}
@@ -43,63 +165,69 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart }) => {
           loading="lazy"
         />
 
-        {/* Badges Condicionales */}
-        {product.destacado && (
-          <span className="product-badge badge-destacado badge-nuevo">Destacado</span>
-        )}
-        {!product.destacado && product.materiales && product.materiales.includes('FSC®') && (
-          <span className="product-badge badge-sustentable">Sustentable</span>
+        {/* Badge superior izquierdo */}
+        {badgeText && (
+          <span
+            className={`product-badge ${
+              badgeText === 'NUEVO'
+                ? 'badge-nuevo'
+                : badgeText === 'SUSTENTABLE'
+                ? 'badge-sustentable'
+                : 'badge-agotado'
+            }`}
+          >
+            {badgeText}
+          </span>
         )}
 
-        {/* Etiqueta de Categoría */}
-        <span className="product-category-tag">{product.categoria || product.category}</span>
+        {/* Botón de Favorito superior derecho */}
+        <button
+          type="button"
+          className={`card-favorite-btn ${isFavorite ? 'is-fav' : ''}`}
+          onClick={handleFavoriteClick}
+          title={isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+          aria-label="Agregar a favoritos"
+        >
+          {isFavorite ? '♥' : '♡'}
+        </button>
       </div>
 
       {/* Información del Producto */}
       <div className="product-info">
-        <div className="product-header-line">
-          <h3
-            className="product-title"
-            onClick={() => onSelectProduct?.(product)}
-            title={nombre}
-          >
+        <div className="product-card-title-group">
+          <h3 className="product-title" title={nombre}>
             {nombre}
           </h3>
-          {product.material && (
-            <span className="product-material-pill">{product.material}</span>
-          )}
+          <p className="product-short-desc">
+            {product.specs?.materiales || product.materiales || descripcion}
+          </p>
         </div>
 
-        <p className="product-short-desc">{product.descripcion}</p>
+        <div className="product-card-bottom-row">
+          <span className="product-price">{precioFormateado}</span>
 
-        <div className="product-meta">
-          <div>
-            <span className="product-price-label">Precio</span>
-            <span className="product-price">{precioFormateado}</span>
+          <div className="product-card-swatches">
+            {swatches.map((color, idx) => (
+              <span
+                key={idx}
+                className="color-swatch-dot"
+                style={{ backgroundColor: color }}
+                title="Tono disponible"
+              />
+            ))}
+            {stockLabel && <span className="stock-label-pill">{stockLabel}</span>}
           </div>
-          <span className={`product-stock-status ${!hayStock ? 'out-of-stock' : ''}`}>
-            {hayStock ? `${product.stock} en stock` : 'Sin stock'}
-          </span>
         </div>
 
-        {/* Acciones de la Tarjeta */}
-        <div className="product-card-actions">
+        {/* Botón flotante/hover para agregar rápido a cotización */}
+        <div className="product-card-quick-actions">
           <button
             type="button"
-            className="btn btn-secondary-light"
-            onClick={() => onSelectProduct?.(product)}
-            aria-label={`Ver detalles de ${nombre}`}
-          >
-            Ver Detalle
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => onAddToCart?.(product, 1)}
+            className="btn btn-primary btn-quick-cotizar"
+            onClick={handleAddClick}
             disabled={!hayStock}
-            aria-label={`Agregar ${nombre} a la cotización`}
           >
-            + Cotizar
+            {hayStock ? '+ Añadir a Cotización' : 'Agotado'}
           </button>
         </div>
       </div>
