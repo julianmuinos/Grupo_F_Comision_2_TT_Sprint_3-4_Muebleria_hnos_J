@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Componente CartModal
@@ -13,6 +14,7 @@ import React, { useState } from 'react';
  */
 const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onClearCart }) => {
   const [checkoutComplete, setCheckoutComplete] = useState(false);
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -37,6 +39,11 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
       setCheckoutComplete(false);
       onClose();
     }, 3000);
+  };
+
+  const handleExploreCatalog = () => {
+    onClose();
+    navigate('/catalogo');
   };
 
   return (
@@ -104,7 +111,7 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
             </svg>
             <h3>Tu carrito está vacío</h3>
             <p>Aún no agregaste muebles a tu pedido.</p>
-            <button type="button" className="btn btn-primary" onClick={onClose}>
+            <button type="button" className="btn btn-primary" onClick={handleExploreCatalog}>
               Explorar el catálogo
             </button>
           </div>
