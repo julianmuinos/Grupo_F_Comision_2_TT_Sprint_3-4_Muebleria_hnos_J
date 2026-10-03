@@ -1,87 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const productos = require('../data/productos');
+const productosController = require('../controllers/productos.controller');
+
+/**
+ * Rutas de Productos - Mueblería Hermanos Jota (Sprint 3 y 4)
+ * Estructurado con express.Router() siguiendo el patrón de controladores (MVC).
+ */
 
 /**
  * @route   GET /api/productos
- * @desc    Obtener el listado completo de productos del catálogo
+ * @desc    Obtener el listado completo de productos (con soporte de filtros opcionales)
  * @access  Público
  */
-router.get('/', (req, res) => {
-  try {
-    const { categoria, destacados } = req.query;
-    let resultado = [...productos];
-
-    // Filtro opcional por categoría si viene por query param
-    if (categoria) {
-      resultado = resultado.filter(
-        (p) => p.categoria.toLowerCase() === categoria.toLowerCase()
-      );
-    }
-
-    // Filtro opcional por destacados si viene por query param
-    if (destacados === 'true') {
-      resultado = resultado.filter((p) => p.destacado);
-    }
-
-    res.status(200).json({
-      success: true,
-      total: resultado.length,
-      data: resultado
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      status: 500,
-      message: 'Error al recuperar los productos del catálogo',
-      error: error.message
-    });
-  }
-});
+router.get('/', productosController.obtenerProductos);
 
 /**
  * @route   GET /api/productos/:id
- * @desc    Búsqueda de producto por ID numérico con validación de error 404
+ * @desc    Búsqueda de producto por ID numérico con validación de error 404 y 400
  * @access  Público
  */
-router.get('/:id', (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-
-    // Validación: verificar que el ID recibido sea un número entero positivo válido
-    if (isNaN(id) || id <= 0) {
-      return res.status(400).json({
-        success: false,
-        status: 400,
-        message: 'El parámetro "id" debe ser un número entero positivo válido.'
-      });
-    }
-
-    // Búsqueda del producto por ID
-    const producto = productos.find((p) => p.id === id);
-
-    // Validación 404 si el producto no existe
-    if (!producto) {
-      return res.status(404).json({
-        success: false,
-        status: 404,
-        message: `Producto con ID ${id} no encontrado en el catálogo.`
-      });
-    }
-
-    // Respuesta exitosa con el producto encontrado
-    res.status(200).json({
-      success: true,
-      data: producto
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      status: 500,
-      message: `Error al obtener el producto con ID ${req.params.id}`,
-      error: error.message
-    });
-  }
-});
+router.get('/:id', productosController.obtenerProductoPorId);
 
 module.exports = router;

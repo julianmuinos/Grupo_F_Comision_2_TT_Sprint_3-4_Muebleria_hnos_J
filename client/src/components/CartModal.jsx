@@ -117,7 +117,7 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
           </div>
         ) : (
           <>
-            <div className="cart-items-list">
+            <div className="cart-items-list custom-scroll">
               {cart.map((item) => (
                 <div key={item.id} className="cart-item">
                   <img src={item.imagen} alt={item.nombre} className="cart-item-image" />

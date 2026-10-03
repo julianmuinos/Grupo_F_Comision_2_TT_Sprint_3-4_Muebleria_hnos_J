@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap');
 
 :root {
+  /* Declaración de esquema de color para evitar pistas oscuras nativas del sistema */
+  color-scheme: light;
+
   /* =========================================================
      PALETA OFICIAL DEL MANUAL DE MARCA — HERMANOS JOTA
      1. Siena Tostado (Tierra, calidez y nobleza de la madera)
@@ -83,6 +86,14 @@
   --radius-full: 9999px;
   --transition: all 0.25s ease-in-out;
   --navbar-height: 72px;
+
+  /* =========================================================
+     VARIABLES DE BARRA DE DESPLAZAMIENTO (SCROLLBAR)
+     ========================================================= */
+  --scrollbar-width: 10px;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: #c9b4a9;
+  --scrollbar-thumb-hover: var(--siena-tostado);
 }
 
 * {
@@ -97,6 +108,88 @@ body {
   color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================
+   BARRA DE DESPLAZAMIENTO PERSONALIZADA (SCROLLBAR)
+   ========================================================= */
+
+/* 1. Estándar W3C para Firefox y navegadores modernos */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* 2. Motores WebKit / Blink (Chrome, Edge, Safari, Opera) a nivel global */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+  /* Borde transparente + background-clip: padding-box crea el efecto flotante */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Ocultar flechas y botones nativos del sistema */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Esquinas para scroll horizontal + vertical */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* 3. Clase utilitaria reutilizable para contenedores internos con scroll */
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+.custom-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.custom-scroll::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* =========================================================
@@ -1361,6 +1454,8 @@ body {
 .cart-items-list {
   flex: 1;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
