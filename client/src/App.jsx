@@ -62,7 +62,7 @@ function App() {
     }
   }, [cart]);
 
-  // Manejador para reintentar la conexión bajo demanda (evento de usuario)
+  // Manejador centralizado para consultar productos (utilizado en montaje y reintento)
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -81,35 +81,11 @@ function App() {
     }
   }, []);
 
-  // Carga inicial asíncrona al montar el componente (con control de desmontaje)
+  // Carga inicial asíncrona al montar el componente reutilizando fetchProducts (DRY)
   useEffect(() => {
-    let ignore = false;
-
-    requestProducts()
-      .then((data) => {
-        if (!ignore) {
-          setProducts(data);
-        }
-      })
-      .catch((err) => {
-        console.error('Error al obtener productos desde la API:', err);
-        if (!ignore) {
-          setError(
-            `No se pudo conectar con el servidor backend en ${API_URL}. ` +
-            'Asegúrate de que la API de Express esté corriendo con "npm start" dentro de /backend.'
-          );
-        }
-      })
-      .finally(() => {
-        if (!ignore) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchProducts();
+  }, [fetchProducts]);
 
   // 5. Cálculo de cantidad total de artículos para pasar al Navbar vía props
   const cartCount = cart.reduce((total, item) => total + item.cantidad, 0);
