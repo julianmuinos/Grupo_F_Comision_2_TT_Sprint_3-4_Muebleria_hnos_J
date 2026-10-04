@@ -68,7 +68,7 @@ La solución adopta una **arquitectura desacoplada en dos capas (Client-Server)*
 * **Navegación Móvil Responsive (MobileSidebar)**: Menú drawer lateral montado con `createPortal` en `document.body`, botón hamburguesa animado en pantallas $\le 768\text{px}$, backdrop con efecto blur, bloqueo de scroll en segundo plano y cierre accesible con tecla Escape o clic exterior.
 * **Filtros y Búsqueda en Tiempo Real**: Buscador integrado con icono de lupa embebido y barra de categorías con scroll horizontal táctil optimizado para mobile.
 * **Ficha de Detalle de Producto (`ProductDetail`)**: Vista inmersiva con galería fotográfica, selector interactivo de acabados de madera, tabla de especificaciones técnicas, selector de cantidad y agregado directo al cotizador.
-* **Carrito y Cotizador Global**: Estado global persistido en `localStorage`, cálculo dinámico de subtotales, regla de bonificación de envío (gratis superando $100.000 ARS) y flujo de confirmación de compra simulada.
+* **Carrito y Cotizador Global**: Estado global persistido en `localStorage`, cálculo dinámico de subtotales, regla de bonificación de envío (gratis superando $1.500.000 ARS) y flujo de confirmación de compra simulada.
 * **Formulario de Contacto 100% Controlado (`ContactForm`)**: Administrado con `useState`, validaciones sincrónicas en tiempo real por campo (nombre, email, teléfono, motivo y mensaje), bloqueo de submit ante inconsistencias, accesibilidad visual y pantalla de éxito.
 * **Vista Institucional de Casa Taller (`ContactView`)**: Información georreferenciada con integración a Google Maps, datos de atención y canales directos vía WhatsApp e Instagram.
 * **Footer Limpio e Institucional (`Footer`)**: Pie de página enfocado en identidad de marca, certificación FSC®, producción artesanal argentina y derechos reservados.
@@ -113,6 +113,7 @@ Grupo_F_Comision_2_TT_Sprint_3-4_Muebleria_hnos_J/
 │   │   ├── index.css             # Reseteo base y configuración de Tailwind CSS
 │   │   └── main.jsx              # Renderizado principal de la aplicación React 19
 │   ├── index.html                # Plantilla HTML5 con metadatos y fuentes Google Fonts
+│   ├── .env.example              # Plantilla de variables de entorno para el backend API
 │   ├── vite.config.js            # Configuración del bundler Vite con plugin de React
 │   ├── eslint.config.js          # Reglas de linting y buenas prácticas de código
 │   └── package.json              # Dependencias de React 19, Vite, Tailwind CSS y linters
@@ -209,6 +210,18 @@ npm run dev
 * `npm run lint`: Ejecuta ESLint sobre todo el código fuente de React.
 * `npm run lint:fix`: Corrige automáticamente inconsistencias de linting detectables.
 * `npm run format`: Formatea el código con Prettier según las reglas del proyecto.
+
+---
+
+## 🔍 Auditoría de Calidad y Refactorizaciones (QA)
+
+Como parte de las mejoras de calidad del Sprint 4, se ejecutó una auditoría técnica orientada a robustez, accesibilidad (a11y) y arquitectura:
+
+1. **Principio DRY en Peticiones HTTP (`App.jsx`)**: Se unificó el consumo asíncrono del catálogo centralizándolo en `fetchProducts`, eliminando la duplicación de lógica en el montaje inicial.
+2. **Desacoplamiento de Servidor para Testing (`backend/index.js`)**: Se condicionó `app.listen()` a ejecución directa (`require.main === module`), permitiendo importar la instancia de Express en suites de pruebas automatizadas sin bloquear puertos de red.
+3. **Parametrización de Entorno (`.env.example`)**: Se desacopló la URL base del servidor (`API_BASE`) del path del recurso (`/api/productos`), permitiendo configuraciones dinámicas de despliegue mediante `VITE_API_URL`.
+4. **Accesibilidad por Teclado (WCAG 2.1 en `Navbar.jsx`)**: Se transformó el isotipo de marca de un `div` pasivo a un `<button type="button">` semántico con `aria-label`, habilitando interacción nativa vía teclado (Enter y Espacio).
+5. **Calibración de Regla de Negocio (`CartModal.jsx`)**: Se ajustó el umbral de envío bonificado a `$1.500.000 ARS`, haciendo coherente el cobro de envío ($8.500) y el mensaje interactivo con los valores reales del catálogo de autor.
 
 ---
 
