@@ -10,8 +10,9 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
-// URL de la API del Backend (Express con soporte de variable de entorno)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/productos';
+// URL de la API del Backend (Express con soporte de variable de entorno base)
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = `${API_BASE}/api/productos`;
 
 // Función auxiliar para consultar la API de productos
 const requestProducts = async () => {
@@ -73,7 +74,7 @@ function App() {
     } catch (err) {
       console.error('Error al obtener productos desde la API:', err);
       setError(
-        `No se pudo conectar con el servidor backend en ${API_URL}. ` +
+        `No se pudo conectar con el servidor backend en ${API_BASE}. ` +
         'Asegúrate de que la API de Express esté corriendo con "npm start" dentro de /backend.'
       );
     } finally {
