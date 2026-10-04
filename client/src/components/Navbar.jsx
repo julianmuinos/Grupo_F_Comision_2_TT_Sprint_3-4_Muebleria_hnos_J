@@ -59,12 +59,12 @@ const Navbar = ({ cartCount, currentView: propCurrentView, onNavigate, onOpenCar
         </button>
 
         {/* Logotipo Oficial Hermanos Jota */}
-        <div
+        <button
+          type="button"
           className="brand"
           onClick={() => handleNavigate('/')}
-          role="button"
-          tabIndex={0}
           title="Ir al inicio"
+          aria-label="Ir al inicio - Mueblería Hermanos Jota"
         >
           <img
             src="/assets/images/logo.svg"
@@ -75,7 +75,7 @@ const Navbar = ({ cartCount, currentView: propCurrentView, onNavigate, onOpenCar
             <span className="brand-name">HERMANOS JOTA</span>
             <span className="brand-tagline">Buenos Aires · 2026</span>
           </div>
-        </div>
+        </button>
 
         {/* Enlaces de Navegación (Desktop) */}
         <nav className="nav-links">
