@@ -1,6 +1,17 @@
+# Dependencias y bloqueos
+node_modules/
+package-lock.json
+
+# Compilación y builds
 dist/
 dist-ssr/
 build/
-node_modules/
-package-lock.json
+
+# Variables de entorno y credenciales
 .env
+.env.*
+*.local
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
