@@ -32,9 +32,11 @@ app.use(notFoundHandler);
 // Middleware centralizado de errores
 app.use(errorHandler);
 
-// Inicio del servidor
-app.listen(PORT, () => {
-  console.log(`Servidor base iniciado en http://localhost:${PORT}`);
-});
+// Inicio del servidor solo en ejecución directa (evita colisiones de puerto al importar en tests)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor base iniciado en http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;
