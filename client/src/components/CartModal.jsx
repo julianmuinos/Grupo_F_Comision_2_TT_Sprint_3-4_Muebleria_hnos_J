@@ -18,9 +18,10 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
 
   if (!isOpen) return null;
 
-  // Cálculo del subtotal y total
+  // Cálculo del subtotal y total con umbral realista de envío bonificado
+  const UMBRAL_ENVIO_GRATIS = 1500000; // $1.500.000 ARS
   const subtotal = cart.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-  const envioGratis = subtotal >= 100000;
+  const envioGratis = subtotal >= UMBRAL_ENVIO_GRATIS;
   const costoEnvio = subtotal > 0 && !envioGratis ? 8500 : 0;
   const total = subtotal + costoEnvio;
 
@@ -186,7 +187,7 @@ const CartModal = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCl
               </div>
               {!envioGratis && (
                 <p className="free-shipping-hint">
-                  Agrega {formatoMoneda(100000 - subtotal)} más para obtener <strong>Envío Gratis</strong>
+                  Agrega {formatoMoneda(UMBRAL_ENVIO_GRATIS - subtotal)} más para obtener <strong>Envío Gratis</strong>
                 </p>
               )}
               <div className="cart-summary-line total-line">
