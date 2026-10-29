@@ -77,14 +77,27 @@ const ProductDetail = ({ onBack: propOnBack, onAddToCart }) => {
     );
   }
 
-  if (!product) {
+  // Estado de error: 404/400 = producto inexistente; otro = falla de conexión/servidor
+  if (error || !product) {
+    const noEncontrado = !error || error.status === 404 || error.status === 400;
     return (
-      <div className="state-container">
-        <h2>Producto no encontrado</h2>
-        <p className="section-subtitle">No se encontró ningún producto con ese identificador.</p>
-        <button type="button" className="btn btn-primary" onClick={handleBack} style={{ marginTop: '1rem' }}>
-          ← Volver al catálogo
-        </button>
+      <div className="state-container" role="alert">
+        <h2>{noEncontrado ? 'Producto no encontrado' : 'No pudimos cargar el producto'}</h2>
+        <p className="section-subtitle">
+          {noEncontrado
+            ? 'No se encontró ningún producto con ese identificador.'
+            : error.message}
+        </p>
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', justifyContent: 'center' }}>
+          {!noEncontrado && (
+            <button type="button" className="btn btn-primary" onClick={handleRetry}>
+              Reintentar
+            </button>
+          )}
+          <button type="button" className="btn btn-secondary-light" onClick={() => navigate('/productos')}>
+            ← Volver al catálogo
+          </button>
+        </div>
       </div>
     );
   }
