@@ -46,7 +46,7 @@ const MobileSidebar = ({
 
   const handleLinkClick = (view) => {
     if (view === 'inicio') onNavigate?.('/');
-    else if (view === 'catalogo') onNavigate?.('/catalogo');
+    else if (view === 'catalogo') onNavigate?.('/productos');
     else if (view === 'contacto') onNavigate?.('/contacto');
     else onNavigate?.(view);
     onClose();
@@ -61,6 +61,7 @@ const MobileSidebar = ({
   const isCatalogActive =
     currentView === 'catalogo' ||
     currentView === '/catalogo' ||
+    currentView === '/productos' ||
     currentView === 'detalle' ||
     (typeof currentView === 'string' && currentView.startsWith('/producto'));
   const isContactActive = currentView === 'contacto' || currentView === '/contacto';

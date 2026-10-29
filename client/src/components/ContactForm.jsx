@@ -45,7 +45,7 @@ const ContactForm = ({ defaultMotivo = 'asesoramiento', onSuccess }) => {
     asesoramiento: 'Asesoramiento de diseño & dimensiones',
     presupuesto: 'Presupuesto formal de piezas',
     personalizacion: 'Personalización de maderas nativas',
-    showroom: 'Visita guiada al Showroom Palermo Soho',
+    showroom: 'Visita guiada a la Casa Taller (San Cristóbal)',
     otro: 'Otra consulta general',
   };
 
@@ -277,7 +277,7 @@ const ContactForm = ({ defaultMotivo = 'asesoramiento', onSuccess }) => {
                 <option value="asesoramiento">Asesoramiento de diseño & dimensiones</option>
                 <option value="presupuesto">Presupuesto formal de piezas</option>
                 <option value="personalizacion">Personalización de maderas nativas</option>
-                <option value="showroom">Visita guiada al Showroom Palermo Soho</option>
+                <option value="showroom">Visita guiada a la Casa Taller (San Cristóbal)</option>
                 <option value="otro">Otra consulta general</option>
               </select>
             </div>
