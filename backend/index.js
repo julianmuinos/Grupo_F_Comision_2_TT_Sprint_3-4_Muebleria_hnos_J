@@ -1,5 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const conectarDB = require('./config/db');
 const logger = require('./middlewares/logger');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
@@ -17,8 +19,9 @@ app.use(logger);
 // Endpoint base
 app.get('/', (req, res) => {
   res.json({
-    mensaje: 'Servidor base activo - Mueblería Hermanos Jota (Sprint 3 y 4)',
-    estado: 'online'
+    mensaje: 'Servidor base activo - Mueblería Hermanos Jota (Sprint 5 y 6)',
+    estado: 'online',
+    baseDeDatos: 'MongoDB Atlas'
   });
 });
 
@@ -34,9 +37,16 @@ app.use(errorHandler);
 
 // Inicio del servidor solo en ejecución directa (evita colisiones de puerto al importar en tests)
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Servidor base iniciado en http://localhost:${PORT}`);
-  });
+  // Conexión a MongoDB antes de levantar el servidor Express
+  conectarDB()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`🚀 Servidor base iniciado en http://localhost:${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('Error al inicializar la aplicación:', err);
+    });
 }
 
 module.exports = app;
