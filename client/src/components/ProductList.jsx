@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { getProductos, getProductoId, PRODUCTOS_URL } from '../api/productos';
 import ProductCard from './ProductCard';
 
 /**
@@ -11,7 +12,35 @@ import ProductCard from './ProductCard';
  * - Grilla de productos dinámica renderizada con .map() y keys únicas
  * - Paginación interactiva
  */
-const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
+const ProductList = ({ onSelectProduct, onAddToCart }) => {
+  // Estado de la petición GET /api/productos (carga, error y reintento)
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    setError(null);
+
+    getProductos(controller.signal)
+      .then(setProducts)
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+        console.error('Error al obtener el catálogo:', err);
+        setError(err.message || 'No se pudo cargar el catálogo.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [reloadKey]);
+
+  const handleRetry = useCallback(() => setReloadKey((k) => k + 1), []);
+
   const [searchInput, setSearchInput] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState(new Set());
