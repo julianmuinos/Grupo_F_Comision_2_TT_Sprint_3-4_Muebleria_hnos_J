@@ -4300,3 +4300,77 @@ html {
     justify-content: center !important;
   }
 }
+
+
+/* =========================================================
+   SKELETON LOADER PARA GRILLA DE CATÁLOGO (useProducts)
+   ========================================================= */
+.skeleton-card {
+  pointer-events: none;
+  user-select: none;
+  background: #FFFFFF;
+  border: 1px solid var(--border-light, #E5E0DB);
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-pulse {
+  background: linear-gradient(90deg, #F0EBE6 25%, #E8E2DC 37%, #F0EBE6 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.skeleton-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.skeleton-info {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 4px;
+}
+
+.skeleton-title {
+  width: 75%;
+  height: 18px;
+}
+
+.skeleton-materials {
+  width: 50%;
+  height: 12px;
+}
+
+.skeleton-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.skeleton-price {
+  width: 40%;
+  height: 18px;
+}
+
+.skeleton-badge {
+  width: 25%;
+  height: 14px;
+}

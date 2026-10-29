@@ -1,44 +1,56 @@
+import { apiClient } from '../services/api';
+
 /**
- * Servicio de Productos (Integrante 4 - Catálogo y Detalle)
- * Centraliza las peticiones GET a la API REST de productos.
+ * Servicio de Productos (Catálogo y Detalle)
+ * Centraliza las peticiones GET a la API REST de productos utilizando la instancia Axios (apiClient).
  */
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const API_BASE = RAW_API_URL.replace(/\/api\/?$/, '');
 export const PRODUCTOS_URL = `${API_BASE}/api/productos`;
 
 // Desempaqueta la respuesta: soporta { data: ... } o el recurso directo
-const parseResponse = async (response) => {
-  let json = null;
-  try {
-    json = await response.json();
-  } catch {
-    // Respuesta sin cuerpo JSON
-  }
+const unwrapData = (payload) =>
+  payload && payload.data !== undefined ? payload.data : payload;
 
-  if (!response.ok) {
-    const error = new Error(json?.message || `Error en el servidor (HTTP ${response.status})`);
-    error.status = response.status;
-    throw error;
+// Normaliza errores de Axios manteniendo compatibilidad con AbortError y códigos HTTP
+const normalizeError = (err) => {
+  if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') {
+    const abortError = new Error('Petición cancelada');
+    abortError.name = 'AbortError';
+    return abortError;
   }
-
-  return json && json.data !== undefined ? json.data : json;
+  const status = err?.response?.status;
+  const message =
+    err?.response?.data?.message ||
+    (status ? `Error en el servidor (HTTP ${status})` : err?.message || 'Error de conexión');
+  const error = new Error(message);
+  if (status) error.status = status;
+  return error;
 };
 
 /** GET /api/productos — devuelve el listado completo */
 export const getProductos = async (signal) => {
-  const response = await fetch(PRODUCTOS_URL, { signal });
-  const data = await parseResponse(response);
-  if (!Array.isArray(data)) {
-    throw new Error('El formato de datos devuelto por la API no es válido.');
+  try {
+    const response = await apiClient.get('/productos', { signal });
+    const data = unwrapData(response.data);
+    if (!Array.isArray(data)) {
+      throw new Error('El formato de datos devuelto por la API no es válido.');
+    }
+    return data;
+  } catch (err) {
+    throw normalizeError(err);
   }
-  return data;
 };
 
 /** GET /api/productos/:id — devuelve un producto por su _id */
 export const getProductoById = async (id, signal) => {
-  const response = await fetch(`${PRODUCTOS_URL}/${encodeURIComponent(id)}`, { signal });
-  return parseResponse(response);
+  try {
+    const response = await apiClient.get(`/productos/${encodeURIComponent(id)}`, { signal });
+    return unwrapData(response.data);
+  } catch (err) {
+    throw normalizeError(err);
+  }
 };
 
-/** Identificador del producto: _id de MongoDB o id numérico legado */
+/** Identificador del producto: _id de MongoDB o id legado */
 export const getProductoId = (product) => product?._id ?? product?.id;
-
