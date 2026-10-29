@@ -23,7 +23,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
   }).format(product.precio ?? product.price ?? 0);
 
   const hayStock = (product.stock ?? 0) > 0 && product.inStock !== false;
-  const imagenSrc = product.imagen || product.image || product.foto;
+  const imagenSrc = product.imagenUrl || product.imagen || product.image || product.foto;
   const nombre = product.nombre || product.title;
   const descripcion = product.descripcion || product.desc || '';
   const swatches = product.swatches || [];
