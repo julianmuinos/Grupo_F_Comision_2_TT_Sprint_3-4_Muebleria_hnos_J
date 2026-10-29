@@ -162,7 +162,9 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
         const aIsNew = a.badge === 'NUEVO' || a.destacado ? 1 : 0;
         const bIsNew = b.badge === 'NUEVO' || b.destacado ? 1 : 0;
         if (aIsNew !== bIsNew) return bIsNew - aIsNew;
-        return (a.id || 0) - (b.id || 0);
+        return String(getProductoId(a) ?? '').localeCompare(String(getProductoId(b) ?? ''), 'es', {
+          numeric: true,
+        });
       });
   }, [products, activeSearch, selectedCategories, selectedMaterials, activeTag, sortBy]);
 
@@ -433,7 +435,7 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
             <div className={viewMode === 'grid' ? 'catalog-grid-3cols' : 'catalog-list-view'}>
               {currentItems.map((product) => (
                 <ProductCard
-                  key={product.id}
+                  key={getProductoId(product)}
                   product={product}
                   onSelectProduct={onSelectProduct}
                   onAddToCart={onAddToCart}
