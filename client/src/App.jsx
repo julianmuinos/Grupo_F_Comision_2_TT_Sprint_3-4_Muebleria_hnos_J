@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import CartModal from './components/CartModal';
 import ProductList from './components/ProductList';
@@ -29,6 +29,12 @@ const requestProducts = async () => {
   }
   throw new Error('El formato de datos devuelto por la API no es válido.');
 };
+
+// Redirección de la ruta legada /producto/:id a /productos/:id
+function LegacyProductRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/productos/${id}`} replace />;
+}
 
 function App() {
   const navigate = useNavigate();
@@ -193,17 +199,10 @@ function App() {
             <Route path="/productos" element={<ProductList onAddToCart={handleAddToCart} />} />
             {/* Rutas legadas redirigidas a las nuevas */}
             <Route path="/catalogo" element={<Navigate to="/productos" replace />} />
+            <Route path="/producto/:id" element={<LegacyProductRedirect />} />
             <Route path="/contacto" element={<ContactView />} />
-            <Route
-              path="/producto/:id"
-              element={
-                <ProductDetail
-                  products={products}
-                  loading={loading}
-                  onAddToCart={handleAddToCart}
-                />
-              }
-            />
+            {/* Detalle dinámico: useParams + GET /api/productos/:id */}
+            <Route path="/productos/:id" element={<ProductDetail onAddToCart={handleAddToCart} />} />
             <Route
               path="*"
               element={
