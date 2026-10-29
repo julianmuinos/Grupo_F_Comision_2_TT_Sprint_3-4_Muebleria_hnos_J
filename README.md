@@ -1,7 +1,7 @@
 # E-commerce Mueblería Hermanos Jota 🪵
-## Trabajo Práctico Integrador — Sprint 3 y 4 | ITBA (Comisión 2 TT · Grupo F)
+## Trabajo Práctico Integrador — Sprints 3, 4, 5 y 6 | ITBA (Comisión 2 TT · Grupo F)
 
-Repositorio oficial del equipo para el desarrollo de la plataforma e-commerce y cotizador interactivo de **Mueblería Hermanos Jota**, basada en una arquitectura Cliente-Servidor desacoplada con **Node.js + Express** en el backend y **React 19 + Vite** en el frontend.
+Repositorio oficial del equipo para el desarrollo de la plataforma e-commerce y cotizador interactivo de **Mueblería Hermanos Jota**, basada en una arquitectura Cliente-Servidor desacoplada con **Node.js + Express** y **MongoDB Atlas (Mongoose)** en el backend, y **React 19 + Vite + Axios** en el frontend.
 
 ---
 
@@ -31,47 +31,66 @@ La propuesta estética se inspira en el diseño modernista de los años 60 (*Mid
 
 ## 🏛️ Arquitectura del Sistema
 
-La solución adopta una **arquitectura desacoplada en dos capas (Client-Server)**:
+La solución adopta una **arquitectura desacoplada en capas (Client-Server con Base de Datos en la Nube)**:
 
 ```text
 ┌────────────────────────────────────────────────────────┐
 │                   CLIENTE (Frontend)                   │
-│      React 19 + Vite + Tailwind CSS + CSS Tokens       │
+│      React 19 + Vite + Tailwind CSS + Axios            │
 │      Puerto por defecto: http://localhost:5173         │
+├────────────────────────────────────────────────────────┤
+│  • Custom Hook useProducts con AbortController         │
+│  • Instancia centralizada Axios apiClient (api.js)     │
+│  • Grilla con Skeleton Loading Shimmer durante carga   │
+│  • Manejo amigable de estados de error de red y API    │
 └───────────────────────────┬────────────────────────────┘
                             │
                     Peticiones HTTP (REST API)
-                    JSON Payloads (CORS habilitado)
+                    JSON Payloads (CORS dinámico por CLIENT_URL)
                             │
 ┌───────────────────────────▼────────────────────────────┐
 │                   SERVIDOR (Backend API)               │
-│          Node.js + Express 4 (API RESTful)             │
+│          Node.js + Express 4 + Dotenv (API REST)       │
 │          Puerto por defecto: http://localhost:5000     │
 ├────────────────────────────────────────────────────────┤
-│  • Logger global con timestamp ISO en consola          │
-│  • Router modular /api/productos con query params      │
-│  • Catálogo en memoria (11 piezas oficiales completas) │
-│  • Manejador de rutas 404 y Middleware de errores 500  │
+│  • Controladores desacoplados (Patrón MVC)             │
+│  • Router /api/productos y alias /api/products         │
+│  • Middleware de Auditoría/Logger y Error Handler      │
+│  • Conexión modular asíncrona a base de datos          │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                    Mongoose 9 ODM (Driver TLS/SSL)
+                            │
+┌───────────────────────────▼────────────────────────────┐
+│              BASE DE DATOS (Cloud Database)            │
+│          MongoDB Atlas (Cluster M0 / AWS)              │
+│          Base de Datos: muebleria_hermanos_jota        │
+├────────────────────────────────────────────────────────┤
+│  • Colección: productos (11 piezas oficiales)          │
+│  • Clave primaria nativa: _id (ObjectId)               │
+│  • Índices optimizados por categoría y destacados      │
 └────────────────────────────────────────────────────────┘
 ```
 
 ### Características del Backend
-* **Servidor RESTful modular**: Desarrollado con Express 4, parser JSON/urlencoded y CORS global habilitado.
-* **Middleware de Auditoría y Logging**: Registra método HTTP, URL consultada y timestamp ISO de cada petición entrante.
-* **Manejo Centralizado de Errores**: Formato estándar JSON con códigos HTTP adecuados (400 para parámetros inválidos, 404 para recursos no encontrados y 500 para excepciones no controladas).
-* **Catálogo de Productos en Memoria**: 11 piezas oficiales con especificaciones técnicas completas (dimensiones, materiales, capacidad, peso, acabados y fotografías de alta resolución).
-* **Filtros por Query Params**: Soporte nativo para filtrado por categoría (`?categoria=`) y por piezas destacadas (`?destacados=true`).
+* **Conexión a MongoDB Atlas con Mongoose**: Módulo desacoplado en `config/db.js` con manejo de excepciones `try/catch`, validación estricta de `MONGO_URI` y consola decorada con host y base de datos.
+* **Gestión de Entorno con Dotenv**: Centralización de variables críticas (`PORT`, `MONGO_URI`, `CLIENT_URL`) mediante `.env`, con plantillas seguras `.env.example` versionadas en el repositorio.
+* **CORS Dinámico**: Configurado para restringir accesos exclusivamente al origen `CLIENT_URL` (o permitir todos en desarrollo si no está definido).
+* **Controladores Asíncronos (MVC)**: Migración de datos estáticos en memoria a consultas reales contra MongoDB Atlas (`Producto.find()`, `Producto.findById()`).
+* **Validación de Identificadores**: Verificación de formato `ObjectId` de Mongoose en `GET /api/productos/:id` retornando `400 Bad Request` ante identificadores malformados y `404 Not Found` ante recursos inexistentes.
+* **Soporte de Endpoints Bilingües**: Montaje simultáneo en `/api/productos` y en `/api/products` para interoperabilidad con clientes en inglés o español.
+* **Script de Sembrado Masivo (Seed)**: Script ejecutable `seed.js` idempotente que vacía la colección previa y carga los 11 muebles del catálogo oficial en Atlas con `npm run seed`.
 
 ### Características del Frontend
-* **Single Page Application (SPA)**: Desarrollada con React 19 y Vite 8 para una experiencia fluida sin recargas de página.
-* **Sistema de Vistas Reactivo**: Navegación instantánea entre *Inicio*, *Catálogo Oficial*, *Ficha de Detalle de Producto* y *Contacto / Casa Taller*.
-* **Navegación Móvil Responsive (MobileSidebar)**: Menú drawer lateral montado con `createPortal` en `document.body`, botón hamburguesa animado en pantallas $\le 768\text{px}$, backdrop con efecto blur, bloqueo de scroll en segundo plano y cierre accesible con tecla Escape o clic exterior.
-* **Filtros y Búsqueda en Tiempo Real**: Buscador integrado con icono de lupa embebido y barra de categorías con scroll horizontal táctil optimizado para mobile.
-* **Ficha de Detalle de Producto (`ProductDetail`)**: Vista inmersiva con galería fotográfica, selector interactivo de acabados de madera, tabla de especificaciones técnicas, selector de cantidad y agregado directo al cotizador.
-* **Carrito y Cotizador Global**: Estado global persistido en `localStorage`, cálculo dinámico de subtotales, regla de bonificación de envío (gratis superando $1.500.000 ARS) y flujo de confirmación de compra simulada.
-* **Formulario de Contacto 100% Controlado (`ContactForm`)**: Administrado con `useState`, validaciones sincrónicas en tiempo real por campo (nombre, email, teléfono, motivo y mensaje), bloqueo de submit ante inconsistencias, accesibilidad visual y pantalla de éxito.
-* **Vista Institucional de Casa Taller (`ContactView`)**: Información georreferenciada con integración a Google Maps, datos de atención y canales directos vía WhatsApp e Instagram.
-* **Footer Limpio e Institucional (`Footer`)**: Pie de página enfocado en identidad de marca, certificación FSC®, producción artesanal argentina y derechos reservados.
+* **Single Page Application (SPA)**: Desarrollada con React 19 y Vite para una navegación fluida e instantánea.
+* **Cliente HTTP con Axios (`apiClient`)**: Instancia centralizada en `src/services/api.js` configurada con `baseURL` dinámica desde `VITE_API_URL`, `timeout: 10000ms` y headers JSON por defecto.
+* **Custom Hook `useProducts`**: Encapsula en `src/hooks/useProducts.js` la lógica asíncrona de obtención del catálogo, retornando `{ products, loading, error }` y protegiendo el ciclo de vida con `AbortController`.
+* **Grilla Skeleton de Carga (Shimmer)**: Mientras `loading === true`, `ProductList.jsx` renderiza 6 tarjetas *skeleton* con animación de pulso que simulan la estructura de imagen, título, precio y materiales.
+* **Manejo Amigable de Errores**: Visualización de alertas de conexión con botón de reintento ante caídas de servidor o fallas de red.
+* **Tarjetas Dinámicas de Producto (`ProductCard`)**: Lectura de datos reales eliminando fallbacks hardcodeados, priorizando propiedades bilingües (`product.name`, `product.price`, `product.materials`, etc.).
+* **Ficha de Detalle de Producto (`ProductDetail`)**: Vista inmersiva con especificaciones técnicas completas, selector de acabados de madera y agregado al carrito.
+* **Carrito y Cotizador Global**: Persistido en `localStorage`, cálculo de subtotales y regla de envío gratis superando $1.500.000 ARS.
+* **Formulario de Contacto Controlado (`ContactForm`)**: 100% gestionado con `useState`, validaciones sincrónicas y vista de Casa Taller georreferenciada.
 
 ---
 
@@ -80,15 +99,23 @@ La solución adopta una **arquitectura desacoplada en dos capas (Client-Server)*
 ```text
 Grupo_F_Comision_2_TT_Sprint_3-4_Muebleria_hnos_J/
 ├── backend/
+│   ├── config/
+│   │   └── db.js                 # Conexión a MongoDB Atlas mediante Mongoose
+│   ├── controllers/
+│   │   └── productos.controller.js # Controladores de lectura (find / findById)
 │   ├── data/
-│   │   └── productos.js          # Base de datos en memoria (11 piezas oficiales)
+│   │   └── productos.js          # Catálogo original de referencia y datos del seed
 │   ├── middlewares/
 │   │   ├── errorHandler.js       # Manejador 404 y middleware centralizado de errores
 │   │   └── logger.js             # Middleware global de auditoría con timestamp
+│   ├── models/
+│   │   └── Producto.js           # Esquema y modelo Mongoose con _id nativo
 │   ├── routes/
 │   │   └── productos.routes.js   # Router con endpoints GET / y GET /:id
-│   ├── index.js                  # Punto de entrada de Express con CORS y middlewares
-│   ├── package.json              # Dependencias (express, cors) y scripts de inicio
+│   ├── index.js                  # Servidor Express con CORS, dotenv y rutas
+│   ├── seed.js                   # Script de sembrado masivo e idempotente
+│   ├── .env.example              # Plantilla de variables de entorno para backend
+│   ├── package.json              # Dependencias (express, cors, mongoose, dotenv)
 │   └── package-lock.json
 │
 ├── client/
@@ -97,6 +124,8 @@ Grupo_F_Comision_2_TT_Sprint_3-4_Muebleria_hnos_J/
 │   │   ├── favicon.svg           # Isotipo vectorial de la marca
 │   │   └── icons.svg             # Sprite de iconos SVG
 │   ├── src/
+│   │   ├── api/
+│   │   │   └── productos.js      # Capa de consumo del catálogo usando apiClient
 │   │   ├── components/
 │   │   │   ├── CartModal.jsx     # Drawer del carrito/cotizador con cálculo de envío
 │   │   │   ├── ContactForm.jsx   # Formulario controlado 100% con useState y validación
@@ -105,20 +134,25 @@ Grupo_F_Comision_2_TT_Sprint_3-4_Muebleria_hnos_J/
 │   │   │   ├── HomeView.jsx      # Portada editorial con piezas destacadas y pilares
 │   │   │   ├── MobileSidebar.jsx # Menú drawer deslizable para mobile con createPortal
 │   │   │   ├── Navbar.jsx        # Barra superior con logo, enlaces y botón hamburguesa
-│   │   │   ├── ProductCard.jsx   # Tarjeta de producto con precios ARS y badge destacado
-│   │   │   ├── ProductDetail.jsx # Ficha detallada con especificaciones técnicas y acabados
-│   │   │   └── ProductList.jsx   # Grilla interactiva de catálogo con buscador y filtros
-│   │   ├── App.css               # Sistema de diseño con variables CSS y estilos responsive
-│   │   ├── App.jsx               # Gestor de estado global, consumo fetch y enrutamiento
+│   │   │   ├── ProductCard.jsx   # Tarjeta de producto con datos reales y precios ARS
+│   │   │   ├── ProductDetail.jsx # Ficha detallada con especificaciones y consumo por ID
+│   │   │   └── ProductList.jsx   # Grilla interactiva, useProducts y skeleton loading
+│   │   ├── hooks/
+│   │   │   └── useProducts.js    # Custom hook reactivo (products, loading, error)
+│   │   ├── services/
+│   │   │   └── api.js            # Instancia centralizada de Axios (apiClient)
+│   │   ├── App.css               # Estilos responsive, tokens y animación skeleton
+│   │   ├── App.jsx               # Enrutamiento con React Router y estado del carrito
 │   │   ├── index.css             # Reseteo base y configuración de Tailwind CSS
 │   │   └── main.jsx              # Renderizado principal de la aplicación React 19
-│   ├── index.html                # Plantilla HTML5 con metadatos y fuentes Google Fonts
-│   ├── .env.example              # Plantilla de variables de entorno para el backend API
-│   ├── vite.config.js            # Configuración del bundler Vite con plugin de React
+│   ├── index.html                # Plantilla HTML5 con metadatos y fuentes
+│   ├── .env.example              # Plantilla de variable VITE_API_URL
+│   ├── vite.config.js            # Configuración del bundler Vite
 │   ├── eslint.config.js          # Reglas de linting y buenas prácticas de código
-│   └── package.json              # Dependencias de React 19, Vite, Tailwind CSS y linters
+│   └── package.json              # Dependencias de React 19, Axios, Tailwind CSS
 │
-├── .gitignore                    # Reglas de exclusión de git (node_modules, dist, etc.)
+├── .gitignore                    # Reglas de exclusión unificadas (node_modules, .env, dist)
+├── .prettierignore               # Exclusiones globales de formateo
 ├── .prettierrc                   # Reglas de formateo de código unificado
 └── README.md                     # Documentación integral del proyecto
 ```
@@ -130,26 +164,37 @@ Grupo_F_Comision_2_TT_Sprint_3-4_Muebleria_hnos_J/
 | Método | Endpoint | Parámetros Query / URL | Descripción | Respuestas HTTP |
 | :--- | :--- | :--- | :--- | :--- |
 | `GET` | `/` | — | Comprobación de estado del servidor (*Health check*). | `200 OK` |
-| `GET` | `/api/productos` | `?categoria=asientos`<br>`?destacados=true` | Obtiene el catálogo completo o filtrado por categoría y/o piezas destacadas. | `200 OK`<br>`500 Error interno` |
-| `GET` | `/api/productos/:id` | `:id` (entero positivo) | Obtiene el detalle técnico y especificaciones de un mueble según su ID numérico. | `200 OK`<br>`400 ID inválido`<br>`404 No encontrado`<br>`500 Error interno` |
+| `GET` | `/api/productos`<br>`/api/products` | `?categoria=asientos`<br>`?destacados=true` | Obtiene el catálogo completo desde MongoDB Atlas (con soporte de filtros opcionales). | `200 OK`<br>`500 Error interno` |
+| `GET` | `/api/productos/:id`<br>`/api/products/:id` | `:id` (`ObjectId` hexadecimal de 24 caracteres) | Obtiene el detalle técnico y especificaciones de un mueble según su `_id` de MongoDB. | `200 OK`<br>`400 ID inválido`<br>`404 No encontrado`<br>`500 Error interno` |
 
 ### Formato de Respuestas de la API
 
-* **Respuesta Exitosa (Catálogo General)**:
+* **Respuesta Exitosa (Catálogo General - MongoDB)**:
   ```json
   {
     "success": true,
     "total": 11,
-    "data": [ /* listado de productos */ ]
+    "data": [
+      {
+        "_id": "6ae36d4873c5d20d44300500",
+        "nombre": "Aparador Uspallata",
+        "categoria": "almacenaje",
+        "precio": 2350000,
+        "descripcion": "Aparador de seis puertas en nogal sostenible...",
+        "imagen": "/assets/images/aparador-uspallata.png",
+        "stock": 8,
+        "destacado": true
+      }
+    ]
   }
   ```
 
-* **Respuesta Exitosa (Detalle de Producto)**:
+* **Respuesta Exitosa (Detalle por `_id`)**:
   ```json
   {
     "success": true,
     "data": {
-      "id": 1,
+      "_id": "6ae36d4873c5d20d44300500",
       "nombre": "Aparador Uspallata",
       "categoria": "almacenaje",
       "precio": 2350000,
@@ -165,14 +210,23 @@ Grupo_F_Comision_2_TT_Sprint_3-4_Muebleria_hnos_J/
   }
   ```
 
-* **Respuesta de Error Estandarizada (404 / 400 / 500)**:
-  ```json
-  {
-    "success": false,
-    "status": 404,
-    "message": "Producto con ID 99 no encontrado en el catálogo."
-  }
-  ```
+* **Respuestas de Error Estandarizadas**:
+  * **400 Bad Request (ObjectId malformado)**:
+    ```json
+    {
+      "success": false,
+      "status": 400,
+      "message": "El parámetro \"id\" no tiene un formato de ObjectId válido."
+    }
+    ```
+  * **404 Not Found (Recurso no encontrado)**:
+    ```json
+    {
+      "success": false,
+      "status": 404,
+      "message": "Producto con ID 672001a5b6c7d8e9f0123456 no encontrado en el catálogo."
+    }
+    ```
 
 ---
 
@@ -181,27 +235,61 @@ Grupo_F_Comision_2_TT_Sprint_3-4_Muebleria_hnos_J/
 ### Prerrequisitos
 * **Node.js**: v18.0.0 o superior (recomendado v20+)
 * **npm**: v9.0.0 o superior
+* **Clúster en MongoDB Atlas**: con acceso de red configurado (`0.0.0.0/0` para desarrollo grupal) y usuario con privilegios de lectura/escritura.
 
-### 1. Iniciar el Servidor Backend (Express)
+---
+
+### 1. Configuración del Servidor Backend (Express + MongoDB Atlas)
 Abrir una terminal en la raíz del repositorio:
 ```bash
 cd backend
 npm install
-npm start
-```
-> El servidor quedará disponible en `http://localhost:5000`. Para desarrollo con reinicio automático nativo ante cambios, podés ejecutar:
-```bash
-npm run dev
 ```
 
-### 2. Iniciar la Aplicación Cliente (React + Vite)
+Crear el archivo `.env` dentro de `backend/` a partir de la plantilla:
+```env
+PORT=5000
+CLIENT_URL=http://localhost:5173
+MONGO_URI=mongodb+srv://<usuario>:<password>@<cluster>.mongodb.net/muebleria_hermanos_jota?retryWrites=true&w=majority
+```
+
+**Sembrar la base de datos (Primera vez):**
+Para inicializar la base de datos en Atlas con las 11 piezas oficiales:
+```bash
+npm run seed
+```
+
+**Iniciar el servidor:**
+```bash
+# Modo producción
+npm start
+
+# Modo desarrollo (con hot-reload nativo)
+npm run dev
+```
+> El servidor iniciará en `http://localhost:5000` confirmando la conexión decorada con MongoDB Atlas en la consola.
+
+---
+
+### 2. Configuración de la Aplicación Cliente (React + Vite)
 En una segunda terminal desde la raíz del proyecto:
 ```bash
 cd client
 npm install
+```
+
+Crear el archivo `.env` dentro de `client/`:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+**Iniciar el cliente de desarrollo:**
+```bash
 npm run dev
 ```
-> La aplicación se abrirá en `http://localhost:5173` y se conectará automáticamente a los endpoints del backend en el puerto 5000.
+> La aplicación se abrirá en `http://localhost:5173` consumiendo la API de Express y MongoDB Atlas a través de Axios.
+
+---
 
 ### Scripts Disponibles en el Frontend
 * `npm run dev`: Inicia el servidor de desarrollo Vite con Hot Module Replacement (HMR).
@@ -209,19 +297,21 @@ npm run dev
 * `npm run preview`: Previsualiza localmente la compilación de producción.
 * `npm run lint`: Ejecuta ESLint sobre todo el código fuente de React.
 * `npm run lint:fix`: Corrige automáticamente inconsistencias de linting detectables.
-* `npm run format`: Formatea el código con Prettier según las reglas del proyecto.
+* `npm run format`: Formatea el código con Prettier según las reglas unificadas del proyecto.
 
 ---
 
-## 🔍 Auditoría de Calidad y Refactorizaciones (QA)
+## 🔍 Registro de Mejoras y Calidad de Código (Sprints 4, 5 y 6)
 
-Como parte de las mejoras de calidad del Sprint 4, se ejecutó una auditoría técnica orientada a robustez, accesibilidad (a11y) y arquitectura:
-
-1. **Principio DRY en Peticiones HTTP (`App.jsx`)**: Se unificó el consumo asíncrono del catálogo centralizándolo en `fetchProducts`, eliminando la duplicación de lógica en el montaje inicial.
-2. **Desacoplamiento de Servidor para Testing (`backend/index.js`)**: Se condicionó `app.listen()` a ejecución directa (`require.main === module`), permitiendo importar la instancia de Express en suites de pruebas automatizadas sin bloquear puertos de red.
-3. **Parametrización de Entorno (`.env.example`)**: Se desacopló la URL base del servidor (`API_BASE`) del path del recurso (`/api/productos`), permitiendo configuraciones dinámicas de despliegue mediante `VITE_API_URL`.
-4. **Accesibilidad por Teclado (WCAG 2.1 en `Navbar.jsx`)**: Se transformó el isotipo de marca de un `div` pasivo a un `<button type="button">` semántico con `aria-label`, habilitando interacción nativa vía teclado (Enter y Espacio).
-5. **Calibración de Regla de Negocio (`CartModal.jsx`)**: Se ajustó el umbral de envío bonificado a `$1.500.000 ARS`, haciendo coherente el cobro de envío ($8.500) y el mensaje interactivo con los valores reales del catálogo de autor.
+1. **Unificación de Reglas Git y Prettier**: Se consolidaron los archivos `.gitignore` y `.prettierignore` en la raíz del repositorio, evitando inconsistencias entre `client` y `backend`.
+2. **Persistencia NoSQL en la Nube**: Migración exitosa de catálogo estático en memoria a base de datos distribuida en MongoDB Atlas mediante Mongoose 9.
+3. **Identificadores Nativos de MongoDB**: Adopción de `_id` (`ObjectId`) como clave primaria técnica única, resolviendo ambigüedades e inconsistencias de auto-incrementos manuales.
+4. **Resiliencia de Conexión de Servidor**: El servidor Express condiciona el inicio del listener HTTP a la confirmación previa del handshake con MongoDB Atlas.
+5. **CORS Orientado a Entorno**: Restricción automática de acceso al origen `CLIENT_URL` en producción y apertura controlada en desarrollo.
+6. **Capa de Servicios Desacoplada**: Implementación de la instancia `apiClient` con Axios en `src/services/api.js` con timeout de 10 segundos y headers estándar.
+7. **Custom Hook Reactivo (`useProducts`)**: Desacoplamiento de la lógica de red de los componentes de vista, implementando ciclo de vida seguro con `AbortController`.
+8. **Feedback Visual Inmediato (Skeleton Loader)**: Reemplazo de pantallas de bloqueo estáticas por esqueletos con efecto shimmer en la grilla del catálogo.
+9. **Eliminación de Datos Hardcodeados**: Adaptación de `ProductCard` para renderizar propiedades dinámicas reales provenientes de la base de datos.
 
 ---
 

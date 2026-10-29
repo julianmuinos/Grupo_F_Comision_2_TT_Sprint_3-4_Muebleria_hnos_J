@@ -1,74 +1,54 @@
 const mongoose = require('mongoose');
 const Producto = require('../models/Producto');
-const productosEnMemoria = require('../data/productos');
 
 /**
- * Controlador de Productos - Mueblería Hermanos Jota
+ * Controlador de Productos - Mueblería Hermanos Jota (Sprint 5 y 6)
  *
- * Sprint 3 y 4: Endpoints GET con catálogo base.
- * Sprint 5 y 6: Integración con MongoDB Atlas y mutaciones (POST, PUT, DELETE) - Integrante 2.
+ * Sprint 5: Operaciones de lectura contra MongoDB Atlas mediante Mongoose (Integrante 1).
+ * Sprint 6: Mutaciones (POST, PUT, DELETE) y validaciones contra MongoDB Atlas (Integrante 2 - Emanuel Ramirez).
  */
 
 /**
- * @desc    Obtener el listado completo de productos (con soporte de filtros opcionales)
+ * @desc    Obtener el listado completo de productos del catálogo desde MongoDB (con soporte de filtros)
  * @route   GET /api/productos
  * @access  Público
  */
 const obtenerProductos = async (req, res, next) => {
   try {
     const { categoria, destacados } = req.query;
+    const filtro = {};
 
-    // Intentar consultar MongoDB Atlas si la conexión está lista
-    if (mongoose.connection.readyState === 1) {
-      const filtro = {};
-
-      if (categoria) {
-        filtro.$or = [
-          { categoria: new RegExp(`^${categoria}$`, 'i') },
-          { category: new RegExp(`^${categoria}$`, 'i') },
-        ];
-      }
-
-      if (destacados === 'true') {
-        filtro.destacado = true;
-      }
-
-      const docs = await Producto.find(filtro).sort({ createdAt: -1 });
-
-      return res.status(200).json({
-        success: true,
-        total: docs.length,
-        data: docs,
-      });
-    }
-
-    // Fallback al catálogo en memoria en caso de no disponer de conexión a BD
-    let resultado = [...productosEnMemoria];
-
+    // Filtro opcional por categoría (insensible a mayúsculas/minúsculas)
     if (categoria) {
-      resultado = resultado.filter(
-        (p) =>
-          (p.categoria || p.category || '').toLowerCase() ===
-          categoria.toLowerCase()
-      );
+      filtro.categoria = categoria.trim().toLowerCase();
     }
 
+    // Filtro opcional por productos destacados
     if (destacados === 'true') {
-      resultado = resultado.filter((p) => p.destacado);
+      filtro.destacado = true;
     }
+
+    const productos = await Producto.find(filtro).sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
-      total: resultado.length,
-      data: resultado,
+      total: productos.length,
+      data: productos,
     });
   } catch (error) {
-    return next(error);
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al recuperar los productos del catálogo.',
+          error: error.message,
+        });
   }
 };
 
 /**
- * @desc    Obtener un producto individual por ID (soporta _id de MongoDB o id numérico legado)
+ * @desc    Obtener un producto individual por su _id de MongoDB
  * @route   GET /api/productos/:id
  * @access  Público
  */
@@ -76,49 +56,40 @@ const obtenerProductoPorId = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // 1. Si la conexión a MongoDB está activa, buscar por ObjectId o id legado
-    if (mongoose.connection.readyState === 1) {
-      let producto = null;
-
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        producto = await Producto.findById(id);
-      }
-
-      // Si no se encontró por _id o no era ObjectId, intentar por id numérico legado
-      if (!producto && /^\d+$/.test(id)) {
-        producto = await Producto.findOne({ id: Number(id) });
-      }
-
-      if (producto) {
-        return res.status(200).json({
-          success: true,
-          data: producto,
-        });
-      }
+    // Validación 400: verificar que el parámetro recibido sea un ObjectId válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        status: 400,
+        message: 'El parámetro "id" no tiene un formato de ObjectId válido.',
+      });
     }
 
-    // 2. Fallback a productos en memoria por id numérico legado
-    if (/^\d+$/.test(id)) {
-      const idNumerico = Number(id);
-      const productoMemoria = productosEnMemoria.find(
-        (p) => p.id === idNumerico
-      );
-      if (productoMemoria) {
-        return res.status(200).json({
-          success: true,
-          data: productoMemoria,
-        });
-      }
+    // Búsqueda del producto por _id en MongoDB
+    const producto = await Producto.findById(id);
+
+    // Validación 404: si el producto no existe en la colección
+    if (!producto) {
+      return res.status(404).json({
+        success: false,
+        status: 404,
+        message: `Producto con ID ${id} no encontrado en el catálogo.`,
+      });
     }
 
-    // Validación 404: no encontrado
-    return res.status(404).json({
-      success: false,
-      status: 404,
-      message: `Producto con ID "${id}" no encontrado en el catálogo.`,
+    return res.status(200).json({
+      success: true,
+      data: producto,
     });
   } catch (error) {
-    return next(error);
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: `Error al obtener el producto con ID ${req.params.id}.`,
+          error: error.message,
+        });
   }
 };
 
@@ -192,7 +163,14 @@ const crearProducto = async (req, res, next) => {
       data: productoGuardado,
     });
   } catch (error) {
-    return next(error);
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al dar de alta el producto.',
+          error: error.message,
+        });
   }
 };
 
@@ -257,7 +235,14 @@ const actualizarProducto = async (req, res, next) => {
       data: productoActualizado,
     });
   } catch (error) {
-    return next(error);
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al actualizar el producto.',
+          error: error.message,
+        });
   }
 };
 
@@ -287,7 +272,14 @@ const eliminarProducto = async (req, res, next) => {
       data: productoEliminado,
     });
   } catch (error) {
-    return next(error);
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al eliminar el producto.',
+          error: error.message,
+        });
   }
 };
 
