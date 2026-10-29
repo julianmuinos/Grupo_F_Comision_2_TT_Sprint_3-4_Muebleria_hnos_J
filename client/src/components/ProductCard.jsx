@@ -4,11 +4,12 @@ import { getProductoId } from '../api/productos';
 
 /**
  * Componente ProductCard
- * Tarjeta individual basada en el diseño oficial de Hermanos Jota:
+ * Tarjeta individual basada en el catálogo oficial de Hermanos Jota:
+ * - Lee las propiedades reales del producto (name, price, materials, image, category, etc.)
  * - Soporta vista en cuadrícula (grid) y vista en lista (list)
- * - Badges oficiales (NUEVO, SUSTENTABLE, AGOTADO)
+ * - Badges oficiales dinámicos (NUEVO, SUSTENTABLE, AGOTADO)
  * - Botón de favorito interactivo (corazón ♡ / ♥)
- * - Muestras de color / swatches y stock disponible
+ * - Muestras de color / swatches y stock real disponible
  * - Precio formateado en moneda argentina ($ ARS)
  */
 const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' }) => {
@@ -17,20 +18,39 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
 
   if (!product) return null;
 
+  // Extracción de datos reales con soporte bilingüe (name/nombre, price/precio, etc.)
+  const nombre = product.name || product.nombre || product.title || 'Mueble de Diseño';
+  const precioRaw = product.price ?? product.precio ?? 0;
   const precioFormateado = new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: 'ARS',
     maximumFractionDigits: 0,
-  }).format(product.precio ?? product.price ?? 0);
+  }).format(precioRaw);
+
+  const imagenSrc =
+    product.image ||
+    product.imageUrl ||
+    product.imagen ||
+    product.imagenUrl ||
+    product.foto ||
+    '/assets/images/default.png';
+
+  const materiales =
+    product.materials ||
+    product.materiales ||
+    product.material ||
+    product.specs?.materiales ||
+    '';
+
+  const categoria = product.category || product.categoria || '';
+  const descripcion = product.description || product.descripcion || product.desc || '';
+  const medidas = product.dimensions || product.medidas || product.specs?.medidas || '';
 
   const hayStock = (product.stock ?? 0) > 0 && product.inStock !== false;
-  const imagenSrc = product.imagenUrl || product.imagen || product.image || product.foto;
-  const nombre = product.nombre || product.title;
-  const descripcion = product.descripcion || product.desc || '';
-  const swatches = product.swatches || [];
+  const swatches = Array.isArray(product.swatches) ? product.swatches : [];
   const stockLabel = product.stockLabel || (!hayStock ? 'Agotado' : null);
 
-  // Badge condicional
+  // Badge condicional según disponibilidad o atributo destacado
   const badgeText = !hayStock
     ? 'AGOTADO'
     : product.badge?.text || product.badge || (product.destacado ? 'NUEVO' : null);
@@ -96,16 +116,12 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
               <h3 className="product-title">{nombre}</h3>
               <span className="product-price">{precioFormateado}</span>
             </div>
-            <p className="product-list-desc">{descripcion}</p>
+            <p className="product-list-desc">{descripcion || materiales}</p>
 
             <div className="product-list-tags">
-              <span className="tag-chip">{product.categoria || product.category}</span>
-              {product.material && (
-                <span className="tag-chip tag-material">{product.material}</span>
-              )}
-              {product.medidas && (
-                <span className="tag-chip tag-spec">📐 {product.medidas}</span>
-              )}
+              {categoria && <span className="tag-chip">{categoria}</span>}
+              {materiales && <span className="tag-chip tag-material">{materiales}</span>}
+              {medidas && <span className="tag-chip tag-spec">📐 {medidas}</span>}
             </div>
           </div>
 
@@ -208,7 +224,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
             {nombre}
           </h3>
           <p className="product-short-desc">
-            {product.specs?.materiales || product.materiales || descripcion}
+            {materiales || descripcion}
           </p>
         </div>
 
@@ -228,7 +244,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
           </div>
         </div>
 
-        {/* Botón flotante/hover para agregar rápido a cotización */}
+        {/* Botón flotante para cotización */}
         <div className="product-card-quick-actions">
           <button
             type="button"

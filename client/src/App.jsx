@@ -8,27 +8,8 @@ import HomeView from './components/HomeView';
 import ContactView from './components/ContactView';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import { getProductos, API_BASE, PRODUCTOS_URL as API_URL } from './api/productos';
 import './App.css';
-
-// URL de la API del Backend (Express con soporte de variable de entorno base)
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-const API_URL = `${API_BASE}/api/productos`;
-
-// Función auxiliar para consultar la API de productos
-const requestProducts = async () => {
-  const response = await fetch(API_URL);
-  if (!response.ok) {
-    throw new Error(`Error en el servidor: Código HTTP ${response.status}`);
-  }
-  const json = await response.json();
-  if (json && Array.isArray(json.data)) {
-    return json.data;
-  }
-  if (Array.isArray(json)) {
-    return json;
-  }
-  throw new Error('El formato de datos devuelto por la API no es válido.');
-};
 
 // Redirección de la ruta legada /producto/:id a /productos/:id
 function LegacyProductRedirect() {
@@ -75,7 +56,7 @@ function App() {
     setError(null);
 
     try {
-      const data = await requestProducts();
+      const data = await getProductos();
       setProducts(data);
     } catch (err) {
       console.error('Error al obtener productos desde la API:', err);

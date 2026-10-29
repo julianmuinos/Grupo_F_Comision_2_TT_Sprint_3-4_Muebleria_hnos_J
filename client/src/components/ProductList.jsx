@@ -1,45 +1,23 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { getProductos, getProductoId, PRODUCTOS_URL } from '../api/productos';
+import React, { useState, useMemo } from 'react';
+import { getProductoId } from '../api/productos';
+import useProducts from '../hooks/useProducts';
 import ProductCard from './ProductCard';
 
 /**
  * Componente ProductList
- * Catálogo interactivo de Hermanos Jota con diseño idéntico a la web oficial:
+ * Catálogo interactivo de Hermanos Jota con diseño oficial:
  * - Header superior con título, buscador integrado y chips de filtros rápidos
  * - Barra lateral izquierda con filtros de Categorías, Materiales con muestras de color
- *   y tarjeta de llamada a la acción "Servicio Bespoke"
  * - Barra de herramientas con contador de piezas, selector de ordenamiento y alternador de vista (Grid / List)
- * - Grilla de productos dinámica renderizada con .map() y keys únicas
+ * - Custom Hook useProducts: estados reactivos de products, loading y error
+ * - Grilla visual de skeletons durante loading === true
+ * - Mensaje amigable cuando error !== null
+ * - Grilla de productos dinámica renderizada con .map() pasando product como prop a ProductCard
  * - Paginación interactiva
  */
 const ProductList = ({ onSelectProduct, onAddToCart }) => {
-  // Estado de la petición GET /api/productos (carga, error y reintento)
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [reloadKey, setReloadKey] = useState(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    setError(null);
-
-    getProductos(controller.signal)
-      .then(setProducts)
-      .catch((err) => {
-        if (err.name === 'AbortError') return;
-        console.error('Error al obtener el catálogo:', err);
-        setError(err.message || 'No se pudo cargar el catálogo.');
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [reloadKey]);
-
-  const handleRetry = useCallback(() => setReloadKey((k) => k + 1), []);
+  // Consumo centralizado del custom hook useProducts
+  const { products, loading, error } = useProducts();
 
   const [searchInput, setSearchInput] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
@@ -118,23 +96,23 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
         // 1. Filtro por búsqueda de texto
         if (activeSearch) {
           const q = normalize(activeSearch);
-          const matchTitle = normalize(p.nombre || p.title).includes(q);
-          const matchDesc = normalize(p.descripcion || p.desc).includes(q);
-          const matchMat = normalize(p.material || p.materiales).includes(q);
-          const matchCat = normalize(p.categoria || p.category).includes(q);
+          const matchTitle = normalize(p.name || p.nombre || p.title).includes(q);
+          const matchDesc = normalize(p.description || p.descripcion || p.desc).includes(q);
+          const matchMat = normalize(p.materials || p.materiales || p.material).includes(q);
+          const matchCat = normalize(p.category || p.categoria).includes(q);
           if (!matchTitle && !matchDesc && !matchMat && !matchCat) return false;
         }
 
         // 2. Filtro por Categorías
         if (selectedCategories.size > 0) {
-          const cat = (p.categoria || p.category || '').toLowerCase();
+          const cat = (p.category || p.categoria || '').toLowerCase();
           if (!selectedCategories.has(cat)) return false;
         }
 
         // 3. Filtro por Materiales
         if (selectedMaterials.size > 0) {
           const mat = (p.material || '').toLowerCase();
-          const mats = (p.materiales || '').toLowerCase();
+          const mats = (p.materials || p.materiales || '').toLowerCase();
           let match = false;
           selectedMaterials.forEach((m) => {
             if (mat.includes(m) || mats.includes(m)) match = true;
@@ -151,12 +129,15 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
         return true;
       })
       .sort((a, b) => {
-        if (sortBy === 'precio-asc') return (a.precio || 0) - (b.precio || 0);
-        if (sortBy === 'precio-desc') return (b.precio || 0) - (a.precio || 0);
+        const precioA = a.price ?? a.precio ?? 0;
+        const precioB = b.price ?? b.precio ?? 0;
+
+        if (sortBy === 'precio-asc') return precioA - precioB;
+        if (sortBy === 'precio-desc') return precioB - precioA;
         if (sortBy === 'alfabetico') {
-          return (a.nombre || a.title || '').localeCompare(b.nombre || b.title || '', 'es', {
-            sensitivity: 'base',
-          });
+          const nombreA = a.name || a.nombre || a.title || '';
+          const nombreB = b.name || b.nombre || b.title || '';
+          return nombreA.localeCompare(nombreB, 'es', { sensitivity: 'base' });
         }
         // Novedades por defecto
         const aIsNew = a.badge === 'NUEVO' || a.destacado ? 1 : 0;
@@ -183,30 +164,6 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
     setSortBy('novedades');
     setCurrentPage(1);
   };
-
-  // Estado de carga de GET /api/productos
-  if (loading) {
-    return (
-      <div className="state-container loading-container" role="status" aria-live="polite">
-        <div className="spinner" />
-        <h2>Cargando catálogo de muebles...</h2>
-        <p>Conectando con la API REST en {PRODUCTOS_URL}</p>
-      </div>
-    );
-  }
-
-  // Estado de error de GET /api/productos con opción de reintento
-  if (error) {
-    return (
-      <div className="state-container error-container" role="alert">
-        <h2>No pudimos cargar el catálogo</h2>
-        <p className="error-detail">{error}</p>
-        <button type="button" className="btn btn-primary" onClick={handleRetry}>
-          Reintentar
-        </button>
-      </div>
-    );
-  }
 
   return (
     <section className="catalog-page-container" aria-labelledby="catalog-heading">
@@ -369,8 +326,12 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
           {/* TOOLBAR SUPERIOR */}
           <div className="catalog-toolbar">
             <div className="toolbar-counter">
-              Mostrando <strong className="counter-current">{currentItems.length}</strong> de{' '}
-              <strong className="counter-total">{totalItems}</strong> piezas
+              Mostrando{' '}
+              <strong className="counter-current">
+                {loading ? '...' : currentItems.length}
+              </strong>{' '}
+              de <strong className="counter-total">{loading ? '...' : totalItems}</strong>{' '}
+              piezas
             </div>
 
             <div className="toolbar-controls-right">
@@ -383,6 +344,7 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
                   id="sortSelect"
                   className="sort-select"
                   value={sortBy}
+                  disabled={loading || !!error}
                   onChange={(e) => {
                     setSortBy(e.target.value);
                     setCurrentPage(1);
@@ -404,7 +366,6 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
                   title="Vista en cuadrícula"
                   aria-label="Vista en cuadrícula"
                 >
-                  {/* Icono Grid 田 */}
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="3" y="3" width="7" height="7" rx="1" />
                     <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -419,7 +380,6 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
                   title="Vista en lista"
                   aria-label="Vista en lista"
                 >
-                  {/* Icono List ☰ */}
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                     <line x1="4" y1="6" x2="20" y2="6" />
                     <line x1="4" y1="12" x2="20" y2="12" />
@@ -430,8 +390,50 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
             </div>
           </div>
 
-          {/* GRILLA / LISTA DE PRODUCTOS */}
-          {currentItems.length > 0 ? (
+          {/* RENDERIZADO CONDICIONAL DE LA GRILLA DE PRODUCTOS */}
+          {loading ? (
+            /* Grilla de Skeleton Cards simulando carga */
+            <div
+              className="catalog-grid-3cols"
+              role="status"
+              aria-label="Cargando catálogo de muebles..."
+            >
+              {Array.from({ length: itemsPerPage }).map((_, idx) => (
+                <div key={idx} className="skeleton-card" aria-hidden="true">
+                  <div className="skeleton-image skeleton-pulse" />
+                  <div className="skeleton-info">
+                    <div className="skeleton-line skeleton-title skeleton-pulse" />
+                    <div className="skeleton-line skeleton-materials skeleton-pulse" />
+                    <div className="skeleton-footer-row">
+                      <div className="skeleton-line skeleton-price skeleton-pulse" />
+                      <div className="skeleton-line skeleton-badge skeleton-pulse" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            /* Mensaje amigable de error al fallar la carga */
+            <div className="state-container error-container" role="alert">
+              <div className="error-icon" aria-hidden="true">
+                ⚠️
+              </div>
+              <h2 className="empty-state-title">No se pudo cargar el catálogo</h2>
+              <p className="error-detail">
+                {typeof error === 'string'
+                  ? error
+                  : 'Ocurrió un inconveniente al conectar con el servidor. Por favor, reintenta más tarde.'}
+              </p>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => window.location.reload()}
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : currentItems.length > 0 ? (
+            /* Éxito: Grilla / Lista de productos mapeando el array */
             <div className={viewMode === 'grid' ? 'catalog-grid-3cols' : 'catalog-list-view'}>
               {currentItems.map((product) => (
                 <ProductCard
@@ -444,6 +446,7 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
               ))}
             </div>
           ) : (
+            /* Sin resultados tras filtros */
             <div className="catalog-empty-state">
               <p className="empty-state-title">No se encontraron piezas</p>
               <p className="empty-state-desc">
@@ -455,8 +458,8 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
             </div>
           )}
 
-          {/* PAGINACIÓN OFICIAL */}
-          {totalPages > 1 && (
+          {/* PAGINACIÓN OFICIAL (Solo visible con datos cargados sin error) */}
+          {!loading && !error && totalPages > 1 && (
             <nav className="catalog-pagination-bar" aria-label="Paginación del catálogo">
               <button
                 type="button"
