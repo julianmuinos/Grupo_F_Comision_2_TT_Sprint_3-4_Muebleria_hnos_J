@@ -182,6 +182,30 @@ const ProductList = ({ onSelectProduct, onAddToCart }) => {
     setCurrentPage(1);
   };
 
+  // Estado de carga de GET /api/productos
+  if (loading) {
+    return (
+      <div className="state-container loading-container" role="status" aria-live="polite">
+        <div className="spinner" />
+        <h2>Cargando catálogo de muebles...</h2>
+        <p>Conectando con la API REST en {PRODUCTOS_URL}</p>
+      </div>
+    );
+  }
+
+  // Estado de error de GET /api/productos con opción de reintento
+  if (error) {
+    return (
+      <div className="state-container error-container" role="alert">
+        <h2>No pudimos cargar el catálogo</h2>
+        <p className="error-detail">{error}</p>
+        <button type="button" className="btn btn-primary" onClick={handleRetry}>
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
   return (
     <section className="catalog-page-container" aria-labelledby="catalog-heading">
       {/* =========================================================
