@@ -187,10 +187,7 @@ function App() {
                   </button>
                 </div>
               ) : (
-                <HomeView
-                  products={products}
-                  onAddToCart={handleAddToCart}
-                />
+                <HomeView products={products} />
               )
             }
           />
