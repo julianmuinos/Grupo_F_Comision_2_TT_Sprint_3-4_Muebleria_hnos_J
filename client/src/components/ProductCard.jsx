@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getProductoId } from '../api/productos';
 
 /**
  * Componente ProductCard
@@ -51,7 +52,7 @@ const ProductCard = ({ product, onSelectProduct, onAddToCart, viewMode = 'grid' 
     if (onSelectProduct) {
       onSelectProduct(product);
     } else {
-      navigate(`/producto/${product.id}`);
+      navigate(`/productos/${getProductoId(product)}`);
     }
   };
 
