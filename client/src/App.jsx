@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import CartModal from './components/CartModal';
 import ProductList from './components/ProductList';
@@ -29,6 +29,12 @@ const requestProducts = async () => {
   }
   throw new Error('El formato de datos devuelto por la API no es válido.');
 };
+
+// Redirección de la ruta legada /producto/:id a /productos/:id
+function LegacyProductRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/productos/${id}`} replace />;
+}
 
 function App() {
   const navigate = useNavigate();
@@ -189,34 +195,14 @@ function App() {
                 )
               }
             />
-            <Route
-              path="/catalogo"
-              element={
-                loading ? (
-                  <div className="state-container loading-container">
-                    <div className="spinner" />
-                    <h2>Cargando catálogo de muebles...</h2>
-                    <p>Conectando con la API REST en {API_URL}</p>
-                  </div>
-                ) : (
-                  <ProductList
-                    products={products}
-                    onAddToCart={handleAddToCart}
-                  />
-                )
-              }
-            />
+            {/* Catálogo general: consume GET /api/productos */}
+            <Route path="/productos" element={<ProductList onAddToCart={handleAddToCart} />} />
+            {/* Rutas legadas redirigidas a las nuevas */}
+            <Route path="/catalogo" element={<Navigate to="/productos" replace />} />
+            <Route path="/producto/:id" element={<LegacyProductRedirect />} />
             <Route path="/contacto" element={<ContactView />} />
-            <Route
-              path="/producto/:id"
-              element={
-                <ProductDetail
-                  products={products}
-                  loading={loading}
-                  onAddToCart={handleAddToCart}
-                />
-              }
-            />
+            {/* Detalle dinámico: useParams + GET /api/productos/:id */}
+            <Route path="/productos/:id" element={<ProductDetail onAddToCart={handleAddToCart} />} />
             <Route
               path="*"
               element={

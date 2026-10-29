@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { getProductos, getProductoId, PRODUCTOS_URL } from '../api/productos';
 import ProductCard from './ProductCard';
 
 /**
@@ -11,7 +12,35 @@ import ProductCard from './ProductCard';
  * - Grilla de productos dinámica renderizada con .map() y keys únicas
  * - Paginación interactiva
  */
-const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
+const ProductList = ({ onSelectProduct, onAddToCart }) => {
+  // Estado de la petición GET /api/productos (carga, error y reintento)
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    setError(null);
+
+    getProductos(controller.signal)
+      .then(setProducts)
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+        console.error('Error al obtener el catálogo:', err);
+        setError(err.message || 'No se pudo cargar el catálogo.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [reloadKey]);
+
+  const handleRetry = useCallback(() => setReloadKey((k) => k + 1), []);
+
   const [searchInput, setSearchInput] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState(new Set());
@@ -133,7 +162,9 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
         const aIsNew = a.badge === 'NUEVO' || a.destacado ? 1 : 0;
         const bIsNew = b.badge === 'NUEVO' || b.destacado ? 1 : 0;
         if (aIsNew !== bIsNew) return bIsNew - aIsNew;
-        return (a.id || 0) - (b.id || 0);
+        return String(getProductoId(a) ?? '').localeCompare(String(getProductoId(b) ?? ''), 'es', {
+          numeric: true,
+        });
       });
   }, [products, activeSearch, selectedCategories, selectedMaterials, activeTag, sortBy]);
 
@@ -152,6 +183,30 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
     setSortBy('novedades');
     setCurrentPage(1);
   };
+
+  // Estado de carga de GET /api/productos
+  if (loading) {
+    return (
+      <div className="state-container loading-container" role="status" aria-live="polite">
+        <div className="spinner" />
+        <h2>Cargando catálogo de muebles...</h2>
+        <p>Conectando con la API REST en {PRODUCTOS_URL}</p>
+      </div>
+    );
+  }
+
+  // Estado de error de GET /api/productos con opción de reintento
+  if (error) {
+    return (
+      <div className="state-container error-container" role="alert">
+        <h2>No pudimos cargar el catálogo</h2>
+        <p className="error-detail">{error}</p>
+        <button type="button" className="btn btn-primary" onClick={handleRetry}>
+          Reintentar
+        </button>
+      </div>
+    );
+  }
 
   return (
     <section className="catalog-page-container" aria-labelledby="catalog-heading">
@@ -380,7 +435,7 @@ const ProductList = ({ products = [], onSelectProduct, onAddToCart }) => {
             <div className={viewMode === 'grid' ? 'catalog-grid-3cols' : 'catalog-list-view'}>
               {currentItems.map((product) => (
                 <ProductCard
-                  key={product.id}
+                  key={getProductoId(product)}
                   product={product}
                   onSelectProduct={onSelectProduct}
                   onAddToCart={onAddToCart}
