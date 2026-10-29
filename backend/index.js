@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const conectarDB = require('./config/db');
@@ -8,8 +9,15 @@ const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middlewares globales de configuración
-app.use(cors());
+// Configuración de CORS:
+// Solo acepta peticiones desde el origen definido en CLIENT_URL;
+// si no está definida, acepta todas las peticiones por defecto en modo desarrollo.
+const corsOptions = {
+  origin: process.env.CLIENT_URL || '*',
+};
+app.use(cors(corsOptions));
+
+// Middlewares globales de parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -25,9 +33,10 @@ app.get('/', (req, res) => {
   });
 });
 
-// Rutas de la API
+// Rutas de la API (soporta endpoint oficial y alias en inglés)
 const productosRouter = require('./routes/productos.routes');
 app.use('/api/productos', productosRouter);
+app.use('/api/products', productosRouter);
 
 // Middleware para manejo de rutas no encontradas (404)
 app.use(notFoundHandler);

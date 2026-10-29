@@ -1,37 +1,38 @@
-const productos = require('../data/productos');
+const mongoose = require('mongoose');
+const Producto = require('../models/Producto');
 
 /**
- * Controlador de Productos - Mueblería Hermanos Jota (Sprint 3 y 4)
- * Implementa el patrón de controladores para separar la lógica de negocio
- * del enrutamiento HTTP según las mejores prácticas de Express y arquitectura MVC.
+ * Controlador de Productos - Mueblería Hermanos Jota (Sprint 5 y 6)
+ * Implementa las operaciones de lectura contra MongoDB Atlas mediante Mongoose,
+ * separando la lógica de negocio del enrutamiento HTTP según el patrón MVC.
  */
 
 /**
- * @desc    Obtener el listado completo de productos del catálogo con soporte de filtros
+ * @desc    Obtener el listado completo de productos del catálogo desde MongoDB (con soporte de filtros)
  * @route   GET /api/productos
  * @access  Público
  */
-const obtenerProductos = (req, res) => {
+const obtenerProductos = async (req, res) => {
   try {
     const { categoria, destacados } = req.query;
-    let resultado = [...productos];
+    const filtro = {};
 
-    // Filtro opcional por categoría si viene por query param
+    // Filtro opcional por categoría (insensible a mayúsculas/minúsculas)
     if (categoria) {
-      resultado = resultado.filter(
-        (p) => (p.categoria || p.category || '').toLowerCase() === categoria.toLowerCase()
-      );
+      filtro.categoria = categoria.trim().toLowerCase();
     }
 
-    // Filtro opcional por destacados si viene por query param
+    // Filtro opcional por productos destacados
     if (destacados === 'true') {
-      resultado = resultado.filter((p) => p.destacado);
+      filtro.destacado = true;
     }
+
+    const productos = await Producto.find(filtro);
 
     return res.status(200).json({
       success: true,
-      total: resultado.length,
-      data: resultado,
+      total: productos.length,
+      data: productos,
     });
   } catch (error) {
     return res.status(500).json({
@@ -44,27 +45,27 @@ const obtenerProductos = (req, res) => {
 };
 
 /**
- * @desc    Obtener un producto individual por ID numérico
+ * @desc    Obtener un producto individual por su _id de MongoDB
  * @route   GET /api/productos/:id
  * @access  Público
  */
-const obtenerProductoPorId = (req, res) => {
+const obtenerProductoPorId = async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const { id } = req.params;
 
-    // Validación 400: verificar que el ID recibido sea un número entero positivo válido
-    if (isNaN(id) || id <= 0) {
+    // Validación 400: verificar que el parámetro recibido sea un ObjectId válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
         status: 400,
-        message: 'El parámetro "id" debe ser un número entero positivo válido.',
+        message: 'El parámetro "id" no tiene un formato de ObjectId válido.',
       });
     }
 
-    // Búsqueda del producto por ID
-    const producto = productos.find((p) => p.id === id);
+    // Búsqueda del producto por _id en MongoDB
+    const producto = await Producto.findById(id);
 
-    // Validación 404: si el producto no existe en el catálogo
+    // Validación 404: si el producto no existe en la colección
     if (!producto) {
       return res.status(404).json({
         success: false,
