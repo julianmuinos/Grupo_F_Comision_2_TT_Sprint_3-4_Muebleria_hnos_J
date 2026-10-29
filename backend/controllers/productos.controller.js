@@ -3,8 +3,9 @@ const Producto = require('../models/Producto');
 
 /**
  * Controlador de Productos - Mueblería Hermanos Jota (Sprint 5 y 6)
- * Implementa las operaciones de lectura contra MongoDB Atlas mediante Mongoose,
- * separando la lógica de negocio del enrutamiento HTTP según el patrón MVC.
+ *
+ * Sprint 5: Operaciones de lectura contra MongoDB Atlas mediante Mongoose (Integrante 1).
+ * Sprint 6: Mutaciones (POST, PUT, DELETE) y validaciones contra MongoDB Atlas (Integrante 2 - Emanuel Ramirez).
  */
 
 /**
@@ -12,7 +13,7 @@ const Producto = require('../models/Producto');
  * @route   GET /api/productos
  * @access  Público
  */
-const obtenerProductos = async (req, res) => {
+const obtenerProductos = async (req, res, next) => {
   try {
     const { categoria, destacados } = req.query;
     const filtro = {};
@@ -27,7 +28,7 @@ const obtenerProductos = async (req, res) => {
       filtro.destacado = true;
     }
 
-    const productos = await Producto.find(filtro);
+    const productos = await Producto.find(filtro).sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
@@ -35,12 +36,14 @@ const obtenerProductos = async (req, res) => {
       data: productos,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      status: 500,
-      message: 'Error al recuperar los productos del catálogo.',
-      error: error.message,
-    });
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al recuperar los productos del catálogo.',
+          error: error.message,
+        });
   }
 };
 
@@ -49,7 +52,7 @@ const obtenerProductos = async (req, res) => {
  * @route   GET /api/productos/:id
  * @access  Público
  */
-const obtenerProductoPorId = async (req, res) => {
+const obtenerProductoPorId = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -74,22 +77,216 @@ const obtenerProductoPorId = async (req, res) => {
       });
     }
 
-    // Respuesta 200 exitosa con el producto encontrado
     return res.status(200).json({
       success: true,
       data: producto,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      status: 500,
-      message: `Error al obtener el producto con ID ${req.params.id}.`,
-      error: error.message,
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: `Error al obtener el producto con ID ${req.params.id}.`,
+          error: error.message,
+        });
+  }
+};
+
+/**
+ * =========================================================================
+ * MUTACIONES (POST, PUT, DELETE) - INTEGRANTE 2 (Emanuel Ramirez)
+ * =========================================================================
+ */
+
+/**
+ * @desc    Dar de alta un nuevo producto en la base de datos
+ * @route   POST /api/productos
+ * @access  Público / Administrativo
+ * @status  201 Created
+ */
+const crearProducto = async (req, res, next) => {
+  try {
+    const {
+      nombre,
+      title,
+      categoria,
+      category,
+      precio,
+      price,
+      descripcion,
+      descripcionLarga,
+      imagen,
+      foto,
+      image,
+      medidas,
+      materiales,
+      material,
+      tags,
+      badge,
+      swatches,
+      stock,
+      destacado,
+      specs,
+    } = req.body;
+
+    // Construcción del nuevo documento siguiendo el modelo Mongoose
+    const nuevoProducto = new Producto({
+      nombre: nombre || title,
+      title: title || nombre,
+      categoria: (categoria || category || '').toLowerCase(),
+      category: (category || categoria || '').toLowerCase(),
+      precio: precio !== undefined ? precio : price,
+      price: price !== undefined ? price : precio,
+      descripcion,
+      descripcionLarga: descripcionLarga || descripcion,
+      imagen: imagen || foto || image,
+      foto: foto || imagen || image,
+      image: image || imagen || foto,
+      medidas: medidas || '',
+      materiales: materiales || material || '',
+      material: material || materiales || '',
+      tags: Array.isArray(tags) ? tags : [],
+      badge: badge || null,
+      swatches: Array.isArray(swatches) ? swatches : [],
+      stock: stock !== undefined ? Number(stock) : 0,
+      inStock: stock !== undefined ? Number(stock) > 0 : true,
+      destacado: Boolean(destacado),
+      specs: specs || {},
     });
+
+    const productoGuardado = await nuevoProducto.save();
+
+    return res.status(201).json({
+      success: true,
+      message: 'Producto creado exitosamente en la base de datos.',
+      data: productoGuardado,
+    });
+  } catch (error) {
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al dar de alta el producto.',
+          error: error.message,
+        });
+  }
+};
+
+/**
+ * @desc    Modificar la información de un producto existente por su ID
+ * @route   PUT /api/productos/:id
+ * @access  Público / Administrativo
+ * @status  200 OK
+ */
+const actualizarProducto = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Buscar el producto existente
+    const producto = await Producto.findById(id);
+
+    if (!producto) {
+      return res.status(404).json({
+        success: false,
+        status: 404,
+        message: `Producto con ID "${id}" no encontrado para actualizar.`,
+      });
+    }
+
+    // Campos permitidos para actualización
+    const camposPermitidos = [
+      'nombre',
+      'title',
+      'categoria',
+      'category',
+      'precio',
+      'price',
+      'descripcion',
+      'descripcionLarga',
+      'imagen',
+      'foto',
+      'image',
+      'medidas',
+      'materiales',
+      'material',
+      'tags',
+      'badge',
+      'swatches',
+      'stock',
+      'destacado',
+      'specs',
+    ];
+
+    // Aplicar únicamente los campos presentes en req.body
+    camposPermitidos.forEach((campo) => {
+      if (req.body[campo] !== undefined) {
+        producto[campo] = req.body[campo];
+      }
+    });
+
+    // Guardar para ejecutar validadores y el middleware pre('save') del schema
+    const productoActualizado = await producto.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Producto actualizado exitosamente en la base de datos.',
+      data: productoActualizado,
+    });
+  } catch (error) {
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al actualizar el producto.',
+          error: error.message,
+        });
+  }
+};
+
+/**
+ * @desc    Remover un producto existente de la base de datos por su ID
+ * @route   DELETE /api/productos/:id
+ * @access  Público / Administrativo
+ * @status  200 OK
+ */
+const eliminarProducto = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const productoEliminado = await Producto.findByIdAndDelete(id);
+
+    if (!productoEliminado) {
+      return res.status(404).json({
+        success: false,
+        status: 404,
+        message: `Producto con ID "${id}" no encontrado para eliminar.`,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Producto eliminado exitosamente de la base de datos.',
+      data: productoEliminado,
+    });
+  } catch (error) {
+    return next
+      ? next(error)
+      : res.status(500).json({
+          success: false,
+          status: 500,
+          message: 'Error al eliminar el producto.',
+          error: error.message,
+        });
   }
 };
 
 module.exports = {
   obtenerProductos,
   obtenerProductoPorId,
+  crearProducto,
+  actualizarProducto,
+  eliminarProducto,
 };
