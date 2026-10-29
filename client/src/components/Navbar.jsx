@@ -24,7 +24,7 @@ const Navbar = ({ cartCount, currentView: propCurrentView, onNavigate, onOpenCar
     }
   };
 
-  // Determinar vista activa según la ruta actual ('Catálogo' activo también en /producto/:id)
+  // Determinar vista activa según la ruta actual ('Catálogo' activo también en /productos/:id)
   const isHome = location.pathname === '/';
   const isCatalog = location.pathname === '/catalogo' || location.pathname.startsWith('/producto');
   const isContact = location.pathname === '/contacto';
@@ -89,7 +89,7 @@ const Navbar = ({ cartCount, currentView: propCurrentView, onNavigate, onOpenCar
           <button
             type="button"
             className={`nav-button ${isCatalog ? 'active' : ''}`}
-            onClick={() => handleNavigate('/catalogo')}
+            onClick={() => handleNavigate('/productos')}
           >
             Catálogo
           </button>

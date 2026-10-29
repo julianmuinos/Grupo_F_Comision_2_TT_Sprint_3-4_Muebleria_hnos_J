@@ -4175,3 +4175,128 @@ html {
     font-size: 1.85rem;
   }
 }
+
+
+/* =========================================================
+   FOOTER OFICIAL HERMANOS JOTA — 3 COLUMNAS RESPONSIVAS
+   ========================================================= */
+.footer-content {
+  display: grid !important;
+  grid-template-columns: 1.6fr 1fr 1.2fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.footer-brand-column {
+  align-items: flex-start !important;
+  text-align: left !important;
+  max-width: 480px;
+}
+
+.footer-brand {
+  justify-content: flex-start !important;
+}
+
+.footer-desc {
+  margin: 0 0 1.35rem !important;
+  text-align: left !important;
+}
+
+.footer-badges {
+  justify-content: flex-start !important;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.footer-col-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.footer-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.footer-nav-link {
+  color: #D1C8C0;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+.footer-nav-link:hover {
+  color: #EFE0CD;
+  transform: translateX(3px);
+}
+
+.footer-contact-text {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #A39B94;
+  margin: 0;
+}
+
+.footer-contact-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+  font-size: 0.88rem;
+}
+
+.footer-contact-link {
+  color: #EFE0CD;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer-contact-link:hover {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.footer-contact-sep {
+  color: #63574F;
+}
+
+@media (max-width: 850px) {
+  .footer-content {
+    grid-template-columns: 1fr !important;
+    gap: 2.25rem !important;
+    text-align: center !important;
+  }
+
+  .footer-brand-column,
+  .footer-brand,
+  .footer-desc,
+  .footer-badges {
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .footer-nav-list {
+    align-items: center !important;
+  }
+
+  .footer-contact-links {
+    justify-content: center !important;
+  }
+}

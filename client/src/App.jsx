@@ -149,81 +149,79 @@ function App() {
         onOpenCart={() => setIsCartOpen(true)}
       />
 
-      {/* Contenido Principal */}
+      {/* Contenido Principal con Rutas Globales Persistentes */}
       <main className={`main-content ${isHome ? 'main-content-home' : ''}`}>
-        {error && !loading ? (
-          <div className="state-container error-container">
-            <div className="error-icon">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#B91C1C"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" x2="12" y1="8" y2="12" />
-                <line x1="12" x2="12.01" y1="16" y2="16" />
-              </svg>
-            </div>
-            <h2>Error de Conexión</h2>
-            <p className="error-detail">{error}</p>
-            <button type="button" className="btn btn-primary" onClick={fetchProducts}>
-              Reintentar conexión
-            </button>
-          </div>
-        ) : (
-          <Routes>
-            <Route
-              path="/"
-              element={
-                loading ? (
-                  <div className="state-container loading-container">
-                    <div className="spinner" />
-                    <h2>Cargando catálogo de muebles...</h2>
-                    <p>Conectando con la API REST en {API_URL}</p>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              loading ? (
+                <div className="state-container loading-container">
+                  <div className="spinner" />
+                  <h2>Cargando catálogo de muebles...</h2>
+                  <p>Conectando con la API REST en {API_URL}</p>
+                </div>
+              ) : error ? (
+                <div className="state-container error-container">
+                  <div className="error-icon">
+                    <svg
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#B91C1C"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" x2="12" y1="8" y2="12" />
+                      <line x1="12" x2="12.01" y1="16" y2="16" />
+                    </svg>
                   </div>
-                ) : (
-                  <HomeView
-                    products={products}
-                    onAddToCart={handleAddToCart}
-                  />
-                )
-              }
-            />
-            {/* Catálogo general: consume GET /api/productos */}
-            <Route path="/productos" element={<ProductList onAddToCart={handleAddToCart} />} />
-            {/* Rutas legadas redirigidas a las nuevas */}
-            <Route path="/catalogo" element={<Navigate to="/productos" replace />} />
-            <Route path="/producto/:id" element={<LegacyProductRedirect />} />
-            <Route path="/contacto" element={<ContactView />} />
-            {/* Detalle dinámico: useParams + GET /api/productos/:id */}
-            <Route path="/productos/:id" element={<ProductDetail onAddToCart={handleAddToCart} />} />
-            <Route
-              path="*"
-              element={
-                <div className="state-container">
-                  <h2>Página no encontrada (404)</h2>
-                  <p className="section-subtitle">
-                    La sección que estás buscando no existe o fue trasladada.
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => navigate('/')}
-                    style={{ marginTop: '1rem' }}
-                  >
-                    Volver al Inicio
+                  <h2>Error de Conexión</h2>
+                  <p className="error-detail">{error}</p>
+                  <button type="button" className="btn btn-primary" onClick={fetchProducts}>
+                    Reintentar conexión
                   </button>
                 </div>
-              }
-            />
-          </Routes>
-        )}
+              ) : (
+                <HomeView
+                  products={products}
+                  onAddToCart={handleAddToCart}
+                />
+              )
+            }
+          />
+          {/* Catálogo general: consume GET /api/productos */}
+          <Route path="/productos" element={<ProductList onAddToCart={handleAddToCart} />} />
+          {/* Rutas legadas redirigidas a las nuevas */}
+          <Route path="/catalogo" element={<Navigate to="/productos" replace />} />
+          <Route path="/producto/:id" element={<LegacyProductRedirect />} />
+          <Route path="/contacto" element={<ContactView />} />
+          {/* Detalle dinámico: useParams + GET /api/productos/:id */}
+          <Route path="/productos/:id" element={<ProductDetail onAddToCart={handleAddToCart} />} />
+          <Route
+            path="*"
+            element={
+              <div className="state-container">
+                <h2>Página no encontrada (404)</h2>
+                <p className="section-subtitle">
+                  La sección que estás buscando no existe o fue trasladada.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => navigate('/')}
+                  style={{ marginTop: '1rem' }}
+                >
+                  Volver al Inicio
+                </button>
+              </div>
+            }
+          />
+        </Routes>
       </main>
 
       {/* Footer Oficial Hermanos Jota Heritage */}
