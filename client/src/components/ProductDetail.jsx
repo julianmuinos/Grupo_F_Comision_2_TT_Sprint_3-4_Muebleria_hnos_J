@@ -69,7 +69,7 @@ const ProductDetail = ({ product: propProduct, products = [], loading = false, o
   }).format(product.precio ?? product.price ?? 0);
 
   const hayStock = (product.stock ?? 0) > 0;
-  const imagenSrc = product.imagen || product.image || product.foto;
+  const imagenSrc = product.imagenUrl || product.imagen || product.image || product.foto;
   const nombre = product.nombre || product.title;
   const categoria = product.categoria || product.category || 'Muebles';
 
