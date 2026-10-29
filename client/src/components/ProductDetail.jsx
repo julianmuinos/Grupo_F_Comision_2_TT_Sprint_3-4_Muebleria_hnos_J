@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getProductoById } from '../api/productos';
 
 /**
  * Componente ProductDetail
@@ -9,18 +10,48 @@ import { useParams, useNavigate } from 'react-router-dom';
  * - Especificaciones técnicas completas (medidas, materiales, acabados, etc.)
  * - Selector de cantidad y adición al carrito / cotización con feedback visual
  * 
+ * - Consume GET /api/productos/:id usando el parámetro :id de la URL (useParams),
+ *   controlando estados de carga (loading) y errores (404 / servidor caído)
+ *
  * Props:
- * - product: Objeto opcional del producto seleccionado (si se pasa directamente)
- * - products: Array completo de productos para resolver por ID si viene de URL
- * - loading: Estado de carga para evitar flash de 'no encontrado' al recargar
  * - onBack: Función callback opcional para regresar al listado del catálogo
  * - onAddToCart: Función callback para añadir cantidad especificada al carrito
  */
-const ProductDetail = ({ product: propProduct, products = [], loading = false, onBack: propOnBack, onAddToCart }) => {
+const ProductDetail = ({ onBack: propOnBack, onAddToCart }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [showToast, setShowToast] = useState(false);
+
+  // Estado de la petición GET /api/productos/:id
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    setError(null);
+    setProduct(null);
+    setQuantity(1);
+
+    getProductoById(id, controller.signal)
+      .then(setProduct)
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+        console.error(`Error al obtener el producto ${id}:`, err);
+        setError(err);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [id, reloadKey]);
+
+  const handleRetry = useCallback(() => setReloadKey((k) => k + 1), []);
 
   // Manejador del botón volver con historial del navegador y fallback seguro al catálogo
   const handleBack = () => {
@@ -31,17 +62,14 @@ const ProductDetail = ({ product: propProduct, products = [], loading = false, o
     if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);
     } else {
-      navigate('/catalogo');
+      navigate('/productos');
     }
   };
 
-  // Resolver el producto: prop directa o búsqueda por parámetro :id de la URL
-  const product = propProduct || (id && products.length > 0 ? products.find((p) => String(p.id) === String(id)) : null);
-
-  // Estado de carga mientras se obtienen los productos al abrir link directo o refrescar
-  if (loading && !product) {
+  // Estado de carga mientras se consulta GET /api/productos/:id
+  if (loading) {
     return (
-      <div className="state-container loading-container">
+      <div className="state-container loading-container" role="status" aria-live="polite">
         <div className="spinner" />
         <h2>Cargando detalle del producto...</h2>
         <p>Buscando especificaciones en el catálogo oficial</p>
